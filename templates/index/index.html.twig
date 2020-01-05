@@ -1,0 +1,188 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <form>
+        <!-- Login -->
+        <div class="row mb-3">
+            <div class="col">
+                <label for="login">Identifiant</label>
+                <input type="text" class="form-control" id="login">
+            </div>
+            <div class="col">
+                <label for="lastName">Mot de passe</label>
+                <input type="password" class="form-control" id="lastName" placeholder="" value="" required="">
+            </div>
+        </div>
+
+        <h3 class="">Selection du produit</h3>
+
+        <!-- product -->
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="product">Produit</label>
+                <input type="text" class="form-control" id="product" name="product" list="products" aria-describedby="productHelp" placeholder="code barre">
+                <datalist id="products">
+                    {% for prd in products %}
+                    <option value="{{ prd.getCodebar()}}">{{ prd.getLabel()}}</option>
+                    {% endfor %}
+                </datalist>
+                <small id="productHelp" class="form-text text-muted d-none d-md-block">Le code barre du produit.</small>
+            </div>
+
+            <div class="form-group col">
+                <label for="qty">Quantité</label>
+                <input type="number" class="form-control" name="qty" id="qty" min="0" max="100">
+            </div>
+
+        </div>
+
+        <div class="form-row mb-4">
+            <div class="col">
+                <button type="button" class="btn btn-success btn-lg btn-block js-button-increment-stock">+</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-danger btn-lg btn-block js-button-decrease-stock">-</button>
+            </div>
+        </div>
+
+        <h3>Produits sélectionnés</h3>
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="label">Label</label>
+                <input type="text" class="form-control" id="label" name="label" placeholder="label pour la transaction">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Actions</th>
+                    </tr>
+
+                    <tbody id="selected_products">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <hr class="mb-4">
+
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Affecter le stock</button>
+
+    </form>
+{% endblock %}
+
+
+{% block javascripts %}
+
+    {% verbatim %}
+    <script id="js-stock-mouvement-template" type="text/x-handlebars-template">
+
+        <tr id="{{id}}">
+            <td class="align-middle">
+                {{product.name}}
+                <br>
+                <em class="text-muted text-i">{{product.barcode}}</em>
+                <input type="hidden" name="product[]['barcode']" value="{{product.barcode}}" />
+            </td>
+            <td class="align-middle">
+                {{ qty }}
+                <input type="hidden" name="product[]['qty']" value="{{ qty }}" />
+            </td>
+            <td class="align-middle">
+                <button type="button" class="btn btn-outline-danger btn-sm" data-remove="{{id}}">X</button>
+            </td>
+        </tr>
+    </script>
+    {% endverbatim %}
+
+    <script type="application/javascript">
+        (function($, Handlebars){
+
+            var StockMouvement = function(codeBarre, label, qty, operation){
+                this.codeBarre = codeBarre;
+                this.label = label;
+                this.operation = operation;
+                this.qty = qty;
+            };
+
+            StockMouvement.prototype.getCodeBarre = function(){
+                return this.codeBarre;
+            };
+
+            StockMouvement.prototype.getLabel = function(){
+                return this.label;
+            };
+
+            StockMouvement.prototype.getQuantity = function(){
+                return this.qty;
+            };
+
+            StockMouvement.prototype.isIncrease = function(){
+                return this.operation === '+';
+            };
+
+            StockMouvement.prototype.isDecrease = function(){
+                return this.operation === '-';
+            };
+
+            function addEntry(obj){
+                var result = compile(obj);
+                $("#selected_products").append(result);
+            }
+
+            function compile(obj){
+                var quantity = obj.getQuantity();
+                if(obj.isDecrease()){
+                    quantity *= -1;
+                }
+                var template = Handlebars.compile($("#js-stock-mouvement-template").html());
+
+                return template({
+                    'product' : {
+                        'name' : obj.getLabel(),
+                        'barcode' : obj.getCodeBarre()
+                    },
+                    'qty' : quantity,
+                    'id' : generateId()
+                })
+            }
+
+            function generateId(){
+                var dt = new Date().getTime();
+                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = (dt + Math.random()*16)%16 | 0;
+                    dt = Math.floor(dt/16);
+                    return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+                });
+
+                return uuid;
+            }
+
+            function createStockMouvement(operation){
+                var product = $('input[name="product"]').val();
+                var qty = $('input[name="qty"]').val();
+
+                return new StockMouvement(product, '', qty, operation);
+            }
+
+            $('.js-button-increment-stock').on('click', function(){
+                var stockMouvement = createStockMouvement('+');
+                addEntry(stockMouvement);
+            });
+
+            $('.js-button-decrease-stock').on('click', function(){
+                var stockMouvement = createStockMouvement('-');
+                addEntry(stockMouvement);
+            });
+
+
+        })(jQuery, Handlebars);
+    </script>
+
+{% endblock %}
