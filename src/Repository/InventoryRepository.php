@@ -3,9 +3,12 @@
 
 namespace App\Repository;
 
-
-final class ProductRepository
+/**
+ * @package App\Repository
+ */
+final class InventoryRepository
 {
+
     /**
      * @var DbManager
      */
@@ -18,4 +21,5 @@ final class ProductRepository
     {
         $this->dbManager = $dbManager;
     }
+
 }

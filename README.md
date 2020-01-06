@@ -5,6 +5,18 @@ Inventory manager for Dolibarr
 * Make a tool to easily add or remove products from a stock on Dolibarr.
 * Randomly this tool has to ask the remaining quantity for one product.
 
+## Storage
+There is no DB, instead small data are stored in JSON files.
+* The number of modifications by products
+* The next random check.
+
+The name of those files are generated with the index of the element and the name of the object (eg. products_42). 
+The extension is always ".json".
+
+Like that we will have two kind of names: 
+* products_ _{the id of the product}_ : stores the number of modifications for one product.
+* inventories_  _{the id of the product}_ : stores the number of modifications before asking the number of remaining products.
+
 ## Contributing
 
 ### Gitmoji

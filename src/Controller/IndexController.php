@@ -2,11 +2,8 @@
 
 namespace App\Controller;
 
-use App\Query\ProductQuery;
-use App\Query\ProductsQueryHandler;
 use http\Client\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,17 +13,11 @@ final class IndexController extends AbstractController
 {
 
     /**
-     * @var ProductsQueryHandler
-     */
-    private $productQueryHandler;
-
-    /**
-     * @param ProductsQueryHandler $productQueryHandler
      * @param ContainerInterface $container
      */
-    public function __construct(ProductsQueryHandler $productQueryHandler, ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
-        $this->productQueryHandler = $productQueryHandler;
+
     }
 
     /**
@@ -34,7 +25,7 @@ final class IndexController extends AbstractController
      */
     public function index()
     {
-        return $this->render('index/index.html.twig', ['products' => $this->productQueryHandler->__invoke(new ProductQuery())]);
+        return $this->render('index/index.html.twig');
     }
 
 }

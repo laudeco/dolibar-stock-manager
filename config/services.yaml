@@ -6,7 +6,6 @@
 parameters:
 
     # Dolibarr
-    dolibarr_token: '2GrWC68pK5tv8N1hjm5Swuy5FkTF2N7K'
     dolibarr_uri: 'docker.for.mac.localhost/api/index.php/'
 
 services:
@@ -32,15 +31,12 @@ services:
         resource: '../src/Query/*'
         exclude: '../src/Query/*Query.php'
 
-    App\Repository\:
-        resource: '../src/Repository/*'
+    App\Repository\Dolibarr\:
+        resource: '../src/Repository/Dolibarr/*'
 
     #-- Dolibarr client services
-
-
     DolibarrAuthentication:
         factory: ['App\Factory\AuthenticationFactory', 'create']
-        arguments: ['%dolibarr_token%']
         class: Dolibarr\Client\Security\Authentication\Authentication
 
     DolibarrClient:

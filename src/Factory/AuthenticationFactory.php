@@ -13,12 +13,10 @@ final class AuthenticationFactory
 {
 
     /**
-     * @param string $token
-     *
      * @return Authentication
      */
-    public static function create($token){
-        return new TokenAuthentication($token);
+    public static function create(){
+        return new TokenAuthentication('');
     }
 
 }
