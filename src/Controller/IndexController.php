@@ -13,14 +13,6 @@ final class IndexController extends AbstractController
 {
 
     /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-
-    }
-
-    /**
      * @return Response
      */
     public function index()
