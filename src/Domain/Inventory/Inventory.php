@@ -39,4 +39,20 @@ final class Inventory
         return new self($product, $quantity);
     }
 
+    /**
+     * @return Product
+     */
+    public function getProduct(): Product
+    {
+        return $this->product;
+    }
+
+    /**
+     * @return Quantity
+     */
+    public function getQuantity(): Quantity
+    {
+        return $this->quantity;
+    }
+
 }

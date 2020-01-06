@@ -17,12 +17,12 @@ final class Product
     private $modification;
 
     /**
-     * @param ProductId $product
+     * @param ProductId $id
      * @param Counter $modification
      */
-    public function __construct(ProductId $product, Counter $modification)
+    public function __construct(ProductId $id, Counter $modification)
     {
-        $this->product = $product;
+        $this->product = $id;
         $this->modification = $modification;
     }
 
@@ -33,6 +33,20 @@ final class Product
      */
     public function applyModifications(int $numberOfModifications){
         return new $this($this->product, $this->modification->apply($numberOfModifications));
+    }
+
+    /**
+     * @return ProductId
+     */
+    public function getId(){
+        return $this->product;
+    }
+
+    /**
+     * @return Counter
+     */
+    public function getCounter(){
+        return $this->modification;
     }
 
 }

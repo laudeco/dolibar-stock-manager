@@ -3,6 +3,8 @@
 
 namespace App\Repository;
 
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+
 /**
  * @package App\Repository
  */
@@ -29,7 +31,7 @@ final class NoSqlManager implements DbManager
      * @param string $table
      * @param string $index
      */
-    public function __construct(string $basePath, string $table, string $index =  'id')
+    public function __construct(string $basePath, string $table, string $index = 'id')
     {
         $this->table = $table;
         $this->basePath = $basePath;
@@ -43,25 +45,27 @@ final class NoSqlManager implements DbManager
      *
      * @return string
      */
-    private function fileName(array $element):string {
+    private function fileName(array $element): string
+    {
 
-        if(!key_exists($this->index, $element)){
+        if (!key_exists($this->index, $element)) {
             throw new \RuntimeException(sprintf('This element doesn\'t have the id %s', $this->index));
         }
 
-        return $this->table.'_'.$element[$this->index];
+        return $this->table . '_' . $element[$this->index];
     }
 
     /**
      * @param mixed $id
      * @return string
      */
-    private function fileNameById($id):string {
-        if(empty($id)){
+    private function fileNameById($id): string
+    {
+        if (empty($id)) {
             throw new \RuntimeException('The index cannot be empty');
         }
 
-        return $this->table.'_'.$id;
+        return $this->table . '_' . $id;
     }
 
     /**
@@ -69,14 +73,16 @@ final class NoSqlManager implements DbManager
      *
      * @return string
      */
-    private function path(string $fileName){
-        return $this->basePath.'/'.$fileName.'.json';
+    private function path(string $fileName)
+    {
+        return $this->basePath . '/' . $fileName . '.json';
     }
 
     /**
      * @param array $element
      */
-    private function write(array $element){
+    private function write(array $element)
+    {
         file_put_contents($this->path($this->fileName($element)), json_encode($element));
     }
 
@@ -85,11 +91,12 @@ final class NoSqlManager implements DbManager
      *
      * @return array
      */
-    private function read($id){
+    private function read($id)
+    {
         $path = $this->path($this->fileNameById($id));
 
-        if(!file_exists($path)){
-            throw new \RuntimeException('no table found');
+        if (!file_exists($path)) {
+            throw new ResourceNotFoundException('no table found');
         }
 
         $content = file_get_contents($path);
@@ -99,7 +106,8 @@ final class NoSqlManager implements DbManager
     /**
      * @param array $entity
      */
-    public function save(array $entity){
+    public function save(array $entity)
+    {
         $this->write($entity);
     }
 
@@ -108,7 +116,8 @@ final class NoSqlManager implements DbManager
      *
      * @return array
      */
-    public function getById($id){
+    public function getById($id)
+    {
         return $this->read($id);
     }
 }
