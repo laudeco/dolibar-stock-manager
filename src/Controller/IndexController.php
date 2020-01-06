@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-use http\Client\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package App\Controller
