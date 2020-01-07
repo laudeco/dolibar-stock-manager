@@ -19,13 +19,13 @@
     <div class="form-row">
         <div class="form-group col">
             <label for="product">Produit</label>
-            <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre">
+            <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre" disabled="disabled">
             <small id="productHelp" class="form-text text-muted d-none d-md-block">Le code barre du produit.</small>
         </div>
 
         <div class="form-group col">
             <label for="qty">Quantité</label>
-            <input type="number" class="form-control" name="qty" id="qty" min="0" max="100">
+            <input type="number" class="form-control" name="qty" id="qty" min="0" max="100"  disabled="disabled">
         </div>
 
     </div>
@@ -41,7 +41,7 @@
 
     <h3>Produits sélectionnés</h3>
 
-    <form>
+    <form method="POST" action="{{ url('process') }}">
         <div class="form-row">
             <div class="form-group col">
                 <label for="label">Label</label>
@@ -84,11 +84,11 @@
                 {{product.name}}
                 <br>
                 <em class="text-muted text-i">{{product.barcode}}</em>
-                <input type="hidden" name="product[]['barcode']" value="{{product.barcode}}" />
+                <input type="hidden" name="barcode[]" value="{{product.barcode}}" />
             </td>
             <td class="align-middle">
                 {{ qty }}
-                <input type="hidden" name="product[]['qty']" value="{{ qty }}" />
+                <input type="hidden" name="qty[]" value="{{ qty }}" />
             </td>
             <td class="align-middle">
                 <button type="button" class="btn btn-outline-danger btn-sm js-remove-row" data-remove="{{id}}">X</button>
@@ -163,8 +163,7 @@
                 return uuid;
             }
 
-            function createStockMouvement(operation, product){
-                var qty = $('input[name="qty"]').val();
+            function createStockMouvement(operation, product, qty){
                 return new StockMouvement(product.barcode, product.label, qty, operation);
             }
 
@@ -208,6 +207,9 @@
 
                 input.setCustomValidity('');
                 input.reportValidity();
+
+                $('#product').removeAttr('disabled');
+                $('#qty').removeAttr('disabled');
             }
 
             function loginFail(response){
@@ -233,10 +235,11 @@
 
             function mouvement(direction){
                 var barcode = $('input[name="product"]').val();
+                var qty = $('input[name="qty"]').val();
                 var productDeferred = selectProduct(barcode);
 
                 productDeferred.done(function(data){
-                    addEntry(createStockMouvement(direction, data));
+                    addEntry(createStockMouvement(direction, data, qty));
                 });
 
                 productDeferred.fail(function(reason){
