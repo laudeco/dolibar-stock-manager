@@ -1,0 +1,24 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        dolibarr_user_provider:
+            id: App\Infrastructure\Security\DolibarrUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            anonymous: lazy
+            logout:
+                path: logout
+            guard:
+                authenticators:
+                    - App\Infrastructure\Security\DolibarrAuthenticator
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/api, roles: ROLE_USER }

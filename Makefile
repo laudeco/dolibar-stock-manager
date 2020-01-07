@@ -54,4 +54,4 @@ console: ## Executes the Symfony command
 
 open: ## Open the browser on the right port
 	$(eval PORT := $(shell port=$$(docker-compose port nginx 80) && echo $${port##*:}))
-	open http://http://localhost:$(PORT)/index.php
+	open http://localhost:$(PORT)/index.php

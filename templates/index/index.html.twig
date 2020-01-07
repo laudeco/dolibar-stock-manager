@@ -1,52 +1,47 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <!-- Login -->
+    <div class="row mb-3">
+        <div class="col">
+            <label for="login">Identifiant</label>
+            <input type="text" class="form-control" name="login" id="login" data-check-url="{{ url('login') }}" data-logout="{{ url('logout') }}">
+        </div>
+        <div class="col">
+            <label for="lastName">Mot de passe</label>
+            <input type="password" class="form-control"  name="password" id="password">
+        </div>
+    </div>
+
+    <h3 class="">Selection du produit</h3>
+
+    <!-- product -->
+    <div class="form-row">
+        <div class="form-group col">
+            <label for="product">Produit</label>
+            <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre">
+            <small id="productHelp" class="form-text text-muted d-none d-md-block">Le code barre du produit.</small>
+        </div>
+
+        <div class="form-group col">
+            <label for="qty">Quantité</label>
+            <input type="number" class="form-control" name="qty" id="qty" min="0" max="100">
+        </div>
+
+    </div>
+
+    <div class="form-row mb-4">
+        <div class="col">
+            <button type="button" class="btn btn-success btn-lg btn-block js-button-increment-stock">+</button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-danger btn-lg btn-block js-button-decrease-stock">-</button>
+        </div>
+    </div>
+
+    <h3>Produits sélectionnés</h3>
+
     <form>
-        <!-- Login -->
-        <div class="row mb-3">
-            <div class="col">
-                <label for="login">Identifiant</label>
-                <input type="text" class="form-control" id="login">
-            </div>
-            <div class="col">
-                <label for="lastName">Mot de passe</label>
-                <input type="password" class="form-control" id="lastName" placeholder="" value="" required="">
-            </div>
-        </div>
-
-        <h3 class="">Selection du produit</h3>
-
-        <!-- product -->
-        <div class="form-row">
-            <div class="form-group col">
-                <label for="product">Produit</label>
-                <input type="text" class="form-control" id="product" name="product" list="products" aria-describedby="productHelp" placeholder="code barre">
-                <datalist id="products">
-                    {% for prd in products %}
-                    <option value="{{ prd.getCodebar()}}">{{ prd.getLabel()}}</option>
-                    {% endfor %}
-                </datalist>
-                <small id="productHelp" class="form-text text-muted d-none d-md-block">Le code barre du produit.</small>
-            </div>
-
-            <div class="form-group col">
-                <label for="qty">Quantité</label>
-                <input type="number" class="form-control" name="qty" id="qty" min="0" max="100">
-            </div>
-
-        </div>
-
-        <div class="form-row mb-4">
-            <div class="col">
-                <button type="button" class="btn btn-success btn-lg btn-block js-button-increment-stock">+</button>
-            </div>
-            <div class="col">
-                <button type="button" class="btn btn-danger btn-lg btn-block js-button-decrease-stock">-</button>
-            </div>
-        </div>
-
-        <h3>Produits sélectionnés</h3>
-
         <div class="form-row">
             <div class="form-group col">
                 <label for="label">Label</label>
@@ -75,6 +70,7 @@
         <button class="btn btn-primary btn-lg btn-block" type="submit">Affecter le stock</button>
 
     </form>
+
 {% endblock %}
 
 
@@ -83,7 +79,7 @@
     {% verbatim %}
     <script id="js-stock-mouvement-template" type="text/x-handlebars-template">
 
-        <tr id="{{id}}">
+        <tr id="{{id}}" class="{{warning}}">
             <td class="align-middle">
                 {{product.name}}
                 <br>
@@ -95,7 +91,7 @@
                 <input type="hidden" name="product[]['qty']" value="{{ qty }}" />
             </td>
             <td class="align-middle">
-                <button type="button" class="btn btn-outline-danger btn-sm" data-remove="{{id}}">X</button>
+                <button type="button" class="btn btn-outline-danger btn-sm js-remove-row" data-remove="{{id}}">X</button>
             </td>
         </tr>
     </script>
@@ -103,7 +99,6 @@
 
     <script type="application/javascript">
         (function($, Handlebars){
-
             var StockMouvement = function(codeBarre, label, qty, operation){
                 this.codeBarre = codeBarre;
                 this.label = label;
@@ -120,7 +115,13 @@
             };
 
             StockMouvement.prototype.getQuantity = function(){
-                return this.qty;
+                var qty = parseInt(this.qty, 10);
+
+                if(this.isDecrease()){
+                    return qty * -1;
+                }
+
+                return qty;
             };
 
             StockMouvement.prototype.isIncrease = function(){
@@ -131,16 +132,13 @@
                 return this.operation === '-';
             };
 
+
             function addEntry(obj){
                 var result = compile(obj);
                 $("#selected_products").append(result);
             }
 
             function compile(obj){
-                var quantity = obj.getQuantity();
-                if(obj.isDecrease()){
-                    quantity *= -1;
-                }
                 var template = Handlebars.compile($("#js-stock-mouvement-template").html());
 
                 return template({
@@ -148,8 +146,9 @@
                         'name' : obj.getLabel(),
                         'barcode' : obj.getCodeBarre()
                     },
-                    'qty' : quantity,
-                    'id' : generateId()
+                    'qty' : obj.getQuantity(),
+                    'id' : generateId(),
+                    'warning' : obj.getQuantity() === 0 ? 'table-warning' : ''
                 })
             }
 
@@ -164,23 +163,111 @@
                 return uuid;
             }
 
-            function createStockMouvement(operation){
-                var product = $('input[name="product"]').val();
+            function createStockMouvement(operation, product){
                 var qty = $('input[name="qty"]').val();
-
-                return new StockMouvement(product, '', qty, operation);
+                return new StockMouvement(product.barcode, product.label, qty, operation);
             }
 
+            function selectProduct(barcode){
+                var $q = $.Deferred();
+
+                var q = $.ajax({
+                    method: "GET",
+                    url: "/index.php/api/products/"+barcode
+                });
+
+                q.done(function(product){
+                    $q.resolve(product);
+                });
+
+                q.fail(function(data){
+                    if(data.status === 404){
+                        $q.reject('Produit non trouvé');
+                        return;
+                    }
+
+                    $q.reject('Erreur avec la recherche du produit');
+
+                });
+
+                return $q.promise();
+            }
+
+            // Authentication
+
+            function authenticate(url, login, password){
+                return $.post(url, { username: login, password: password });
+            }
+
+            function loginSuccess(){
+                var $password = $('#password');
+                var input = $password[0];
+
+                $password.addClass('is-valid');
+                $password.removeClass('is-invalid');
+
+                input.setCustomValidity('');
+                input.reportValidity();
+            }
+
+            function loginFail(response){
+                var message = "Erreur de login";
+                if(typeof response.responseJSON !== "undefined" && typeof response.responseJSON.message !== "undefined"){
+                    message = response.responseJSON.message;
+                }
+
+                var $password = $('#password');
+                setErrorMessage($password, message)
+            }
+
+
+            function setErrorMessage($input, message){
+                var input = $input[0];
+
+                $input.addClass('is-invalid');
+                $input.removeClass('is-valid');
+
+                input.setCustomValidity(message);
+                input.reportValidity();
+            }
+
+            function mouvement(direction){
+                var barcode = $('input[name="product"]').val();
+                var productDeferred = selectProduct(barcode);
+
+                productDeferred.done(function(data){
+                    addEntry(createStockMouvement(direction, data));
+                });
+
+                productDeferred.fail(function(reason){
+                    setErrorMessage($('#product'), reason);
+                });
+            }
+
+            //Listeners
+
             $('.js-button-increment-stock').on('click', function(){
-                var stockMouvement = createStockMouvement('+');
-                addEntry(stockMouvement);
+                mouvement('+')
             });
 
             $('.js-button-decrease-stock').on('click', function(){
-                var stockMouvement = createStockMouvement('-');
-                addEntry(stockMouvement);
+                mouvement('-')
             });
 
+            $(document).on('click', 'button.js-remove-row', function(){
+                var id = $(this).data('remove');
+                $('#'+id).remove();
+            });
+
+            $('#password').on("focusout", function(){
+                var login = $("#login").val();
+                var password = $("#password").val();
+                var url = $("#login").data('check-url');
+
+                authenticate(url, login, password)
+                    .done(loginSuccess)
+                    .fail(loginFail);
+            });
 
         })(jQuery, Handlebars);
     </script>

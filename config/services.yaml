@@ -7,6 +7,8 @@ parameters:
 
     # Dolibarr
     dolibarr_uri: 'docker.for.mac.localhost/api/index.php/'
+    dolibarr_login: ''
+    dolibarr_password: ''
 
 services:
     # default configuration for services in *this* file
@@ -26,7 +28,6 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-
     App\Query\:
         resource: '../src/Query/*'
         exclude: '../src/Query/*Query.php'
@@ -34,16 +35,21 @@ services:
     App\Repository\Dolibarr\:
         resource: '../src/Repository/Dolibarr/*'
 
-    #-- Dolibarr client services
-    DolibarrAuthentication:
-        factory: ['App\Factory\AuthenticationFactory', 'create']
-        class: Dolibarr\Client\Security\Authentication\Authentication
+    App\Factory\DolibarrClientFactory:
+        arguments: ['%dolibarr_uri%']
+        class: App\Factory\DolibarrClientFactory
 
+    #-- Dolibarr client services
     DolibarrClient:
-        factory: ['App\Factory\DolibarrClientFactory', 'create']
-        arguments: ['%dolibarr_uri%', '@DolibarrAuthentication']
+        factory: ['@App\Factory\DolibarrClientFactory', 'create']
         class: Dolibarr\Client\Client
 
-    Dolibarr\Client\Service\ProductsService:
-        factory: ['@DolibarrClient', 'products']
-        class: Dolibarr\Client\Service\ProductsService
+    Dolibarr\Client\Service\LoginService:
+        factory: ['@DolibarrClient', 'login']
+        class: Dolibarr\Client\Service\LoginService
+
+
+
+    App\Infrastructure\Security\DolibarrUserProvider: ~
+    App\Infrastructure\Security\DolibarrAuthenticator: ~
+    App\Infrastructure\Security\AuthenticationConfigurator: ~

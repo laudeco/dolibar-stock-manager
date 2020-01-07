@@ -9,7 +9,8 @@
         "symfony/yaml": "^5.0",
         "symfony/twig-bundle": "^5.0",
         "symfony/dotenv": "^5.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "symfony/security-bundle": "^5.0"
     },
     "authors": [
         {
@@ -27,5 +28,8 @@
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         }
+    },
+    "require-dev": {
+        "symfony/profiler-pack": "^1.0"
     }
 }
