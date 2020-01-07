@@ -1,9 +1,14 @@
 # dolibar-stock-manager
-Inventory manager for Dolibarr
+Inventory manager for Dolibarr.
 
 ## Objectives
+the projects has two main objectives:
 * Make a tool to easily add or remove products from a stock on Dolibarr.
 * Randomly this tool has to ask the remaining quantity for one product.
+
+The project does not require any user access, if you are known on the Dolibarr instance it's enough.
+That being said, this project can be public on the internet since it does not expose any sensitive data to the user.
+If you do not have any account on the Dolibarr instance you cannot have access to the products.
 
 ## Technical point of view 
 
