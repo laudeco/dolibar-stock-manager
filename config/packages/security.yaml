@@ -22,3 +22,4 @@ security:
     access_control:
          - { path: ^/process, roles: ROLE_USER }
          - { path: ^/api, roles: ROLE_USER }
+         - { path: ^/inventory-check, roles: ROLE_USER }

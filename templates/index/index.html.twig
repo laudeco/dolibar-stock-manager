@@ -81,7 +81,9 @@
 
         <tr id="{{id}}" class="{{warning}}">
             <td class="align-middle">
-                {{product.name}}
+                <span class="label">
+                    <span class="spinner-border spinner-border-sm text-success" role="status"></span>
+                </span>
                 <br>
                 <em class="text-muted text-i">{{product.barcode}}</em>
                 <input type="hidden" name="barcode[]" value="{{product.barcode}}" />
@@ -99,19 +101,15 @@
 
     <script type="application/javascript">
         (function($, Handlebars){
-            var StockMouvement = function(codeBarre, label, qty, operation){
+            var StockMouvement = function(codeBarre, qty, operation, id){
                 this.codeBarre = codeBarre;
-                this.label = label;
                 this.operation = operation;
                 this.qty = qty;
+                this.id = id;
             };
 
             StockMouvement.prototype.getCodeBarre = function(){
                 return this.codeBarre;
-            };
-
-            StockMouvement.prototype.getLabel = function(){
-                return this.label;
             };
 
             StockMouvement.prototype.getQuantity = function(){
@@ -132,10 +130,19 @@
                 return this.operation === '-';
             };
 
+            StockMouvement.prototype.getId = function(){
+                return this.id;
+            };
+
 
             function addEntry(obj){
                 var result = compile(obj);
                 $("#selected_products").append(result);
+            }
+
+            function clearFields(){
+                $('#qty').val('');
+                $('#product').val('');
             }
 
             function compile(obj){
@@ -143,11 +150,10 @@
 
                 return template({
                     'product' : {
-                        'name' : obj.getLabel(),
                         'barcode' : obj.getCodeBarre()
                     },
                     'qty' : obj.getQuantity(),
-                    'id' : generateId(),
+                    'id' : obj.getId(),
                     'warning' : obj.getQuantity() === 0 ? 'table-warning' : ''
                 })
             }
@@ -161,10 +167,6 @@
                 });
 
                 return uuid;
-            }
-
-            function createStockMouvement(operation, product, qty){
-                return new StockMouvement(product.barcode, product.label, qty, operation);
             }
 
             function selectProduct(barcode){
@@ -193,7 +195,6 @@
             }
 
             // Authentication
-
             function authenticate(url, login, password){
                 return $.post(url, { username: login, password: password });
             }
@@ -236,14 +237,21 @@
             function mouvement(direction){
                 var barcode = $('input[name="product"]').val();
                 var qty = $('input[name="qty"]').val();
-                var productDeferred = selectProduct(barcode);
+                var id = generateId();
 
-                productDeferred.done(function(data){
-                    addEntry(createStockMouvement(direction, data, qty));
+                addEntry(new StockMouvement(barcode, qty, direction, id));
+
+                clearFields();
+
+                var q = selectProduct(barcode);
+                q.done(function(product){
+                    $("#"+id+" .label").html(product.label);
                 });
 
-                productDeferred.fail(function(reason){
-                    setErrorMessage($('#product'), reason);
+                q.fail(function(){
+                    $("#"+id).addClass('table-danger');
+                    $("#"+id+" input").remove();
+                    $("#"+id+" .label").remove();
                 });
             }
 

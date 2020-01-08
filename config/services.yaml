@@ -11,6 +11,9 @@ parameters:
     # Inventory min and max - the number of updates before the next inventory will be between those 2 values.
     inventory_min: 1
     inventory_max: 1
+    app_inventory_label: 'Correction du stock'
+    app_mouvement_label: 'Mouvement'
+    app_stock_id: 1
 
     # Db
     db_basepath: '../../data/nosql'

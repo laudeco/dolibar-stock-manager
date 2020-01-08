@@ -25,6 +25,11 @@ final class Product
     private $id;
 
     /**
+     * @var int
+     */
+    private $stock;
+
+    /**
      * @return string
      */
     public function getCodebar(): string
@@ -70,5 +75,21 @@ final class Product
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @param int $realStock
+     */
+    public function setStock(int $realStock)
+    {
+        $this->stock = $realStock;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStock(): int
+    {
+        return $this->stock;
     }
 }
