@@ -55,4 +55,14 @@ final class Inventory
         return $this->quantity;
     }
 
+    /**
+     * @param int $counter
+     *
+     * @return bool
+     */
+    public function isLimitReached(int $counter): bool
+    {
+        return $this->quantity->isLimitReached($counter);
+    }
+
 }

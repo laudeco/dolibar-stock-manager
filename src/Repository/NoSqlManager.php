@@ -27,16 +27,18 @@ final class NoSqlManager implements DbManager
     private $index;
 
     /**
+     * NoSqlManager constructor.
      * @param string $basePath
      * @param string $table
      * @param string $index
      */
     public function __construct(string $basePath, string $table, string $index = 'id')
     {
-        $this->table = $table;
         $this->basePath = $basePath;
+        $this->table = $table;
         $this->index = $index;
     }
+
 
     /**
      * Return the name of the file where will be saved/read the element.
@@ -75,7 +77,7 @@ final class NoSqlManager implements DbManager
      */
     private function path(string $fileName)
     {
-        return $this->basePath . '/' . $fileName . '.json';
+        return dirname(__FILE__).'/'.$this->basePath . '/' . $fileName . '.json';
     }
 
     /**

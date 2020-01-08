@@ -24,13 +24,15 @@ final class Transaction
 
     /**
      * @param string $label
-     *
-     * @throws \Exception
      */
     public function __construct(string $label){
         $this->label = $label;
-        $this->dueDate = new \DateTimeImmutable();
         $this->movements = [];
+
+        try{
+            $this->dueDate = new \DateTimeImmutable();
+        }catch(\Exception $e){
+        }
     }
 
     /**
@@ -40,4 +42,27 @@ final class Transaction
         $this->movements[] = $movement;
     }
 
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function getDueDate(): \DateTimeImmutable
+    {
+        return $this->dueDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    /**
+     * @return StockMovement[]|array
+     */
+    public function getMovements()
+    {
+        return $this->movements;
+    }
 }

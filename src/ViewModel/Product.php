@@ -20,6 +20,11 @@ final class Product
     private $label;
 
     /**
+     * @var int
+     */
+    private $id;
+
+    /**
      * @return string
      */
     public function getCodebar(): string
@@ -49,6 +54,22 @@ final class Product
     public function setLabel(string $label): void
     {
         $this->label = $label;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
     }
 
 }

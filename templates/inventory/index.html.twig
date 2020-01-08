@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h3 class="">Inventaire</h3>
+
+    <p>
+        Ho ho! Il est temps de faire l'inventaire de ces produits.
+    </p>
+
+    <form method="POST" action="{{ url('process') }}">
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité en stock</th>
+                    </tr>
+
+                    <tbody id="selected_products">
+
+                    {% for product in products %}
+                        <tr id="{{product.id}}" class="{% if product.isFound() %}table-warning{% endif %}">
+                            <td class="align-middle">
+                                {{product.label}}
+                                <br>
+                                <em class="text-muted text-i">{{product.barcode}}</em>
+                                <input type="hidden" name="barcode[]" value="{{product.barcode}}" />
+                            </td>
+                            <td class="align-middle">
+                                <input type="number" name="qty[]"/>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <hr class="mb-4">
+
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Envoyer l'inventaire</button>
+
+    </form>
+
+{% endblock %}

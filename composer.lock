@@ -627,16 +627,16 @@
         },
         {
             "name": "laudeco/dolibarr-client",
-            "version": "0.3.3",
+            "version": "0.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laudeco/dolibarr-api-client.git",
-                "reference": "1bcbc51ff19a2e758a0bb08a67ea3b20378f6f38"
+                "reference": "1081a5b970f32293ede7ff8e2a18f30b7552b9b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laudeco/dolibarr-api-client/zipball/1bcbc51ff19a2e758a0bb08a67ea3b20378f6f38",
-                "reference": "1bcbc51ff19a2e758a0bb08a67ea3b20378f6f38",
+                "url": "https://api.github.com/repos/laudeco/dolibarr-api-client/zipball/1081a5b970f32293ede7ff8e2a18f30b7552b9b9",
+                "reference": "1081a5b970f32293ede7ff8e2a18f30b7552b9b9",
                 "shasum": ""
             },
             "require": {
@@ -667,7 +667,7 @@
                 }
             ],
             "description": "PHP client for the rest API of Dolibarr.",
-            "time": "2020-01-07T06:36:59+00:00"
+            "time": "2020-01-08T09:56:29+00:00"
         },
         {
             "name": "phpcollection/phpcollection",

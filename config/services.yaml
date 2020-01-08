@@ -7,8 +7,14 @@ parameters:
 
     # Dolibarr
     dolibarr_uri: 'docker.for.mac.localhost/api/index.php/'
-    dolibarr_login: ''
-    dolibarr_password: ''
+
+    # Inventory min and max - the number of updates before the next inventory will be between those 2 values.
+    inventory_min: 1
+    inventory_max: 1
+
+    # Db
+    db_basepath: '../../data/nosql'
+
 
 services:
     # default configuration for services in *this* file
@@ -32,9 +38,6 @@ services:
         resource: '../src/Query/*'
         exclude: '../src/Query/*Query.php'
 
-    App\Repository\Dolibarr\:
-        resource: '../src/Repository/Dolibarr/*'
-
     App\Factory\DolibarrClientFactory:
         arguments: ['%dolibarr_uri%']
         class: App\Factory\DolibarrClientFactory
@@ -49,7 +52,37 @@ services:
         class: Dolibarr\Client\Service\LoginService
 
 
-
+    #-- Authentication
     App\Infrastructure\Security\DolibarrUserProvider: ~
     App\Infrastructure\Security\DolibarrAuthenticator: ~
     App\Infrastructure\Security\AuthenticationConfigurator: ~
+
+
+    #-- Command handler
+    App\Command\InventoryCommandHandler:
+        arguments:
+            $min: '%inventory_min%'
+            $max: '%inventory_max%'
+
+    #-- Repo
+    App\Repository\Dolibarr\:
+        resource: '../src/Repository/Dolibarr/*'
+
+    InventoriesManager:
+        class: 'App\Repository\NoSqlManager'
+        arguments:
+            $basePath: '%db_basepath%'
+            $table: 'inventories'
+            $index: 'product'
+
+    ProductsManager:
+        class: 'App\Repository\NoSqlManager'
+        arguments:
+            $basePath: '%db_basepath%'
+            $table: 'products'
+
+    App\Repository\ProductRepository:
+        arguments: ['@ProductsManager']
+
+    App\Repository\InventoryRepository:
+        arguments: ['@InventoriesManager']

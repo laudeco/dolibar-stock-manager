@@ -54,4 +54,14 @@ final class Quantity
         return $this->value;
     }
 
+    /**
+     * @param int $counter
+     *
+     * @return bool
+     */
+    public function isLimitReached(int $counter): bool
+    {
+        return $counter >= $this->value;
+    }
+
 }

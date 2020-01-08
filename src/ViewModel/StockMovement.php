@@ -19,10 +19,16 @@ final class StockMovement
     private $barcode;
 
     /**
+     * @var int
+     */
+    private $productId;
+
+    /**
      * @param int $quantity
      * @param string $barcode
+     * @param int $productId
      */
-    private function __construct(int $quantity, string $barcode)
+    private function __construct(int $quantity, string $barcode, int $productId)
     {
         if(empty($barcode)){
             throw new \InvalidArgumentException();
@@ -30,16 +36,18 @@ final class StockMovement
 
         $this->quantity = $quantity;
         $this->barcode = $barcode;
+        $this->productId = $productId;
     }
 
     /**
      * @param string $barcode
+     * @param int $productId
      * @param int $quantity
      *
      * @return StockMovement
      */
-    public static function move(string $barcode, int $quantity){
-        return new self($quantity, $barcode);
+    public static function move(string $barcode, int $productId, int $quantity){
+        return new self($quantity, $barcode, $productId);
     }
 
     /**
@@ -56,6 +64,14 @@ final class StockMovement
     public function getBarcode(): string
     {
         return $this->barcode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProductId(): int
+    {
+        return $this->productId;
     }
 
 }

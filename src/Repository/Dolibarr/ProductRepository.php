@@ -3,64 +3,28 @@
 
 namespace App\Repository\Dolibarr;
 
-use App\Factory\DolibarrClientFactory;
 use Doctrine\Common\Collections\ArrayCollection;
-use Dolibarr\Client\Client;
 use Dolibarr\Client\Domain\Common\Barcode;
 use Dolibarr\Client\Domain\Product\Product;
+use Dolibarr\Client\Domain\Product\ProductId;
 use Dolibarr\Client\Exception\ApiException;
 use Dolibarr\Client\Exception\ResourceNotFoundException;
-use Dolibarr\Client\Security\Authentication\LoginAuthentication;
 use Dolibarr\Client\Service\ProductsService;
-use Symfony\Component\Security\Core\Security;
 
 /**
  * @package App\Repository
  */
-final class ProductRepository
+final class ProductRepository extends DolibarrRepository
 {
-
-    /**
-     * @var DolibarrClientFactory
-     */
-    private $factory;
-
-    /**
-     * @var Security
-     */
-    private $security;
-
     /**
      * @var ProductsService
      */
     private $productService;
 
     /**
-     * @param DolibarrClientFactory $factory
-     * @param Security $security
-     */
-    public function __construct(DolibarrClientFactory $factory, Security $security)
-    {
-        $this->factory = $factory;
-        $this->security = $security;
-    }
-
-    /**
-     * @return Client
-     */
-    private function client(){
-        $user = $this->security->getUser();
-        if($user){
-            $this->factory->setAuthentication(new LoginAuthentication($user->getUsername(), $user->getPassword()));
-        }
-
-        return $this->factory->create();
-    }
-
-    /**
      * @return ProductsService
      */
-    private function service(){
+    protected function service(){
         if(null !== $this->productService){
             return $this->productService;
         }
@@ -94,5 +58,25 @@ final class ProductRepository
      */
     public function getByBarcode(string $barcode){
         return $this->service()->getByBarcode(new Barcode($barcode));
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return \App\ViewModel\Product
+     *
+     * @throws ApiException
+     */
+    public function getById(int $id)
+    {
+        $product = $this->service()->getById(new ProductId($id));
+
+        $viewProduct = new \App\ViewModel\Product();
+
+        $viewProduct->setLabel($product->getLabel());
+        $viewProduct->setCodebar($product->getBarcode());
+        $viewProduct->setId($product->getId());
+
+        return $viewProduct;
     }
 }
