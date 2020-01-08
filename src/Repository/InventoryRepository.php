@@ -42,6 +42,7 @@ final class InventoryRepository
     public function getById(string $id)
     {
         $inventory = $this->dbManager->getById($id);
+
         return $this->toEntity($inventory);
     }
 
@@ -53,7 +54,7 @@ final class InventoryRepository
     private function fromEntity(Inventory $inventory)
     {
         return [
-            'product' => $inventory->getProduct()->getId(),
+            'product'  => $inventory->getProduct()->getId(),
             'quantity' => $inventory->getQuantity()->getValue(),
         ];
     }

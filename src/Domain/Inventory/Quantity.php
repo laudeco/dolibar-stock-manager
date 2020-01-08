@@ -30,7 +30,8 @@ final class Quantity
      *
      * @return Quantity
      */
-    public static function random($min, $max){
+    public static function random($min, $max)
+    {
         try {
             return new self(random_int($min, $max));
         } catch (\Exception $e) {
@@ -42,7 +43,8 @@ final class Quantity
      *
      * @return Quantity
      */
-    public static function create(int $quantity){
+    public static function create(int $quantity)
+    {
         return new self($quantity);
     }
 
@@ -63,5 +65,4 @@ final class Quantity
     {
         return $counter >= $this->value;
     }
-
 }

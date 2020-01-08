@@ -21,8 +21,9 @@ final class StockMovementRepository extends DolibarrRepository
     /**
      * @return StockMovementsService
      */
-    protected function service(){
-        if(null !== $this->productService){
+    protected function service()
+    {
+        if (null !== $this->productService) {
             return $this->productService;
         }
 
@@ -36,7 +37,8 @@ final class StockMovementRepository extends DolibarrRepository
      *
      * @throws ApiException
      */
-    public function save(StockMovement $movement){
+    public function save(StockMovement $movement)
+    {
         return $this->service()->create($movement);
     }
 }

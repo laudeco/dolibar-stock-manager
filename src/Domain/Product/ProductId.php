@@ -3,7 +3,6 @@
 
 namespace App\Domain\Product;
 
-
 final class ProductId
 {
 
@@ -27,5 +26,4 @@ final class ProductId
     {
         return $this->id;
     }
-
 }

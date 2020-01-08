@@ -34,7 +34,7 @@ final class SubmissionController extends AbstractController
     private $productQueryHandler;
 
     /**
-     * @param InventoryCommandHandler $handler
+     * @param InventoryCommandHandler         $handler
      * @param GetProductByBarcodeQueryHandler $productQueryHandler
      */
     public function __construct(InventoryCommandHandler $handler, GetProductByBarcodeQueryHandler $productQueryHandler)
@@ -56,17 +56,15 @@ final class SubmissionController extends AbstractController
 
         $productRequiresInventoryCheck = [];
 
-        foreach($transaction->getMovements() as $movement){
+        foreach ($transaction->getMovements() as $movement) {
             try {
-
                 $label = $transaction->getLabel();
-                if(empty($label)){
+                if (empty($label)) {
                     $label = 'movement';
                 }
 
                 $command = new InventoryCommand($label, $transaction->getDueDate(), 1, $movement->getProductId(), $movement->getQuantity());
                 $this->handler->__invoke($command);
-
             } catch (InventoryCheckRequestedException $e) {
                 $productRequiresInventoryCheck[] = $e->getProductId();
             } catch (ApiException $e) {
@@ -74,7 +72,7 @@ final class SubmissionController extends AbstractController
             }
         }
 
-        if(empty($productRequiresInventoryCheck)){
+        if (empty($productRequiresInventoryCheck)) {
             return $this->redirectToRoute('logout');
         }
 
@@ -96,7 +94,7 @@ final class SubmissionController extends AbstractController
         $products = [];
         $i = 0;
         foreach ($barcodes as $currentBarcode) {
-            if(!isset($products[$currentBarcode])){
+            if (!isset($products[$currentBarcode])) {
                 try {
                     $product = $this->productQueryHandler->__invoke(new GetProductByBarcodeQuery($currentBarcode));
                     $products[$currentBarcode] = $product->getId();

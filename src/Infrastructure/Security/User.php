@@ -3,7 +3,6 @@
 
 namespace App\Infrastructure\Security;
 
-
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class User implements UserInterface
@@ -21,6 +20,7 @@ final class User implements UserInterface
 
     /**
      * User constructor.
+     *
      * @param string $login
      * @param string $password
      */
@@ -94,5 +94,4 @@ final class User implements UserInterface
     {
         //Do nothing
     }
-
 }

@@ -3,7 +3,6 @@
 
 namespace App\Domain\Inventory;
 
-
 final class Product
 {
 

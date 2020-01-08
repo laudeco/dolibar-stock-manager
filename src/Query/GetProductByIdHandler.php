@@ -36,11 +36,11 @@ final class GetProductByIdHandler
      */
     public function __invoke(GetProductById $query)
     {
-        try{
+        try {
             return $this->productRepository->getById($query->getId());
-        }catch(ResourceNotFoundException $e){
+        } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException();
-        }catch(ApiException $e){
+        } catch (ApiException $e) {
             throw new HttpException(500);
         }
     }

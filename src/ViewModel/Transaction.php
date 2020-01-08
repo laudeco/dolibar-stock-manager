@@ -3,7 +3,6 @@
 
 namespace App\ViewModel;
 
-
 final class Transaction
 {
 
@@ -25,20 +24,22 @@ final class Transaction
     /**
      * @param string $label
      */
-    public function __construct(string $label){
+    public function __construct(string $label)
+    {
         $this->label = $label;
         $this->movements = [];
 
-        try{
+        try {
             $this->dueDate = new \DateTimeImmutable();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
         }
     }
 
     /**
      * @param StockMovement $movement
      */
-    public function add(StockMovement $movement){
+    public function add(StockMovement $movement)
+    {
         $this->movements[] = $movement;
     }
 

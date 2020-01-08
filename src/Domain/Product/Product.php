@@ -3,7 +3,6 @@
 
 namespace App\Domain\Product;
 
-
 final class Product
 {
     /**
@@ -18,7 +17,7 @@ final class Product
 
     /**
      * @param ProductId $id
-     * @param Counter $modification
+     * @param Counter   $modification
      */
     public function __construct(ProductId $id, Counter $modification)
     {
@@ -31,22 +30,24 @@ final class Product
      *
      * @return Product
      */
-    public function applyModifications(int $numberOfModifications){
+    public function applyModifications(int $numberOfModifications)
+    {
         return new $this($this->product, $this->modification->apply($numberOfModifications));
     }
 
     /**
      * @return ProductId
      */
-    public function getId(){
+    public function getId()
+    {
         return $this->product;
     }
 
     /**
      * @return Counter
      */
-    public function getCounter(){
+    public function getCounter()
+    {
         return $this->modification;
     }
-
 }

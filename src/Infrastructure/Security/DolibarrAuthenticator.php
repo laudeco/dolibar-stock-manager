@@ -48,22 +48,22 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getCredentials(Request $request)
     {
         return [
-            'login' => $request->request->get('username'),
+            'login'    => $request->request->get('username'),
             'password' => $request->request->get('password'),
         ];
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        $login  = $credentials['login'];
+        $login = $credentials['login'];
         $password = $credentials['password'];
 
         if (null === $login || null === $password) {
@@ -72,6 +72,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
 
         try {
             $this->loginService->login($login, $password);
+
             return new User($login, $password);
         } catch (ApiException $e) {
             return null;
@@ -79,7 +80,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
@@ -87,7 +88,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
@@ -96,7 +97,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
@@ -108,7 +109,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
@@ -120,7 +121,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function supportsRememberMe()
     {

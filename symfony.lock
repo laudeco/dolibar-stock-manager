@@ -1,4 +1,10 @@
 {
+    "composer/semver": {
+        "version": "1.5.0"
+    },
+    "composer/xdebug-handler": {
+        "version": "1.4.0"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -19,6 +25,18 @@
     },
     "doctrine/lexer": {
         "version": "1.2.0"
+    },
+    "friendsofphp/php-cs-fixer": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.2",
+            "ref": "cc05ab6abf6894bddb9bbd6a252459010ebe040b"
+        },
+        "files": [
+            ".php_cs.dist"
+        ]
     },
     "guzzlehttp/guzzle": {
         "version": "6.5.2"
@@ -41,8 +59,14 @@
     "laudeco/dolibarr-client": {
         "version": "0.3"
     },
+    "paragonie/random_compat": {
+        "version": "v9.99.99"
+    },
     "php": {
         "version": "7.4"
+    },
+    "php-cs-fixer/diff": {
+        "version": "v1.3.0"
     },
     "phpcollection/phpcollection": {
         "version": "0.5.0"
@@ -155,6 +179,9 @@
     "symfony/mime": {
         "version": "v5.0.2"
     },
+    "symfony/options-resolver": {
+        "version": "v5.0.2"
+    },
     "symfony/polyfill-ctype": {
         "version": "v1.13.1"
     },
@@ -164,11 +191,17 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.13.1"
     },
+    "symfony/polyfill-php70": {
+        "version": "v1.13.1"
+    },
     "symfony/polyfill-php72": {
         "version": "v1.13.1"
     },
     "symfony/polyfill-php73": {
         "version": "v1.13.1"
+    },
+    "symfony/process": {
+        "version": "v5.0.2"
     },
     "symfony/profiler-pack": {
         "version": "v1.0.4"

@@ -31,7 +31,7 @@ final class ProductController extends AbstractController
 
     /**
      * @param GetProductByBarcodeQueryHandler $getProductByBarcodeQueryHandler
-     * @param Security $security
+     * @param Security                        $security
      */
     public function __construct(GetProductByBarcodeQueryHandler $getProductByBarcodeQueryHandler, Security $security)
     {
@@ -47,19 +47,17 @@ final class ProductController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function byBarcode(string $barcode){
+    public function byBarcode(string $barcode)
+    {
         try {
-
             $product = $this->getProductByBarcodeQueryHandler->__invoke(new GetProductByBarcodeQuery($barcode));
 
             return new JsonResponse([
-                'label' => $product->getLabel(),
+                'label'   => $product->getLabel(),
                 'barcode' => $product->getCodebar(),
             ]);
-
         } catch (ApiException $e) {
             throw new HttpException(500, $e->getMessage());
         }
     }
-
 }

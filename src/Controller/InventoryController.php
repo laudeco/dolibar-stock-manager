@@ -34,19 +34,20 @@ final class InventoryController extends AbstractController
      *
      * @return Response
      */
-    public function indexAction(Request $request){
+    public function indexAction(Request $request)
+    {
         $productIds = $request->get('products', []);
 
-        if(empty($productIds)){
+        if (empty($productIds)) {
             return $this->redirectToRoute('logout');
         }
 
         $products = [];
-        foreach ($productIds as $id){
-            try{
+        foreach ($productIds as $id) {
+            try {
                 $prd = $this->productHandler->__invoke(new GetProductById($id));
                 $products[] = ProductInventory::create($prd->getId(), $prd->getCodebar(), $prd->getLabel());
-            }catch(NotFoundHttpException $e){
+            } catch (NotFoundHttpException $e) {
                 $products[] = ProductInventory::notFound($id);
             }
         }
@@ -55,5 +56,4 @@ final class InventoryController extends AbstractController
             'products' => $products
         ]);
     }
-
 }

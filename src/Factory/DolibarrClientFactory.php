@@ -44,9 +44,11 @@ final class DolibarrClientFactory
     /**
      * @return Client
      */
-    public function create(){
+    public function create()
+    {
         $builder = new ClientBuilder($this->dolibarrUri, $this->authentication);
         $builder->setDebug(false);
+
         return $builder->build();
     }
 }

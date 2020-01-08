@@ -3,7 +3,6 @@
 
 namespace App\ViewModel;
 
-
 final class ProductInventory
 {
     /**
@@ -27,7 +26,7 @@ final class ProductInventory
     private $find;
 
     /**
-     * @param int $id
+     * @param int         $id
      * @param string|null $barcode
      * @param string|null $label
      */
@@ -44,18 +43,20 @@ final class ProductInventory
      *
      * @return ProductInventory
      */
-    public static function notFound(int $id){
+    public static function notFound(int $id)
+    {
         return new self($id);
     }
 
     /**
-     * @param int $id
+     * @param int    $id
      * @param string $barcode
      * @param string $label
      *
      * @return ProductInventory
      */
-    public static function create(int $id, string $barcode, string $label){
+    public static function create(int $id, string $barcode, string $label)
+    {
         return new self($id, $barcode, $label);
     }
 
@@ -90,5 +91,4 @@ final class ProductInventory
     {
         return $this->find;
     }
-
 }

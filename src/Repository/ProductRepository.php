@@ -38,6 +38,7 @@ final class ProductRepository
     public function getById(string $id)
     {
         $product = $this->dbManager->getById($id);
+
         return $this->toEntity($product);
     }
 
@@ -49,7 +50,7 @@ final class ProductRepository
     private function fromEntity(Product $product)
     {
         return [
-            'id' => $product->getId()->getId(),
+            'id'      => $product->getId()->getId(),
             'counter' => $product->getCounter()->getValue(),
         ];
     }
@@ -63,5 +64,4 @@ final class ProductRepository
     {
         return new Product(new ProductId($product['id']), new Counter($product['counter']));
     }
-
 }

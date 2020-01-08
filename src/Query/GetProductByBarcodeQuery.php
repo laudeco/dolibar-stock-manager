@@ -29,6 +29,4 @@ final class GetProductByBarcodeQuery
     {
         return $this->barcode;
     }
-
-
 }

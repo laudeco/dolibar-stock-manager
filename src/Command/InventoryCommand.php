@@ -37,11 +37,11 @@ final class InventoryCommand
     private $quantity;
 
     /**
-     * @param string $label
+     * @param string             $label
      * @param \DateTimeImmutable $dueDate
-     * @param int $stockId
-     * @param int $productId
-     * @param int $quantity
+     * @param int                $stockId
+     * @param int                $productId
+     * @param int                $quantity
      */
     public function __construct(string $label, \DateTimeImmutable $dueDate, int $stockId, int $productId, int $quantity)
     {
@@ -96,5 +96,4 @@ final class InventoryCommand
     {
         return $this->quantity;
     }
-
 }

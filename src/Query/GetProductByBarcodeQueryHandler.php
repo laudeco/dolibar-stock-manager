@@ -34,10 +34,9 @@ final class GetProductByBarcodeQueryHandler
      *
      * @throws ApiException
      */
-    public function __invoke(GetProductByBarcodeQuery $query){
-
+    public function __invoke(GetProductByBarcodeQuery $query)
+    {
         try {
-
             $products = $this->productRepository->getByBarcode($query->barcode());
             /** @var \Dolibarr\Client\Domain\Product\Product $currentProduct */
             $currentProduct = $products->first();
@@ -48,9 +47,8 @@ final class GetProductByBarcodeQueryHandler
             $apiProduct->setId(intval($currentProduct->getId(), 10));
 
             return $apiProduct;
-        }catch(ResourceNotFoundException $e){
+        } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException();
         }
-
     }
 }

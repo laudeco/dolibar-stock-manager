@@ -71,5 +71,4 @@ final class Product
     {
         $this->id = $id;
     }
-
 }

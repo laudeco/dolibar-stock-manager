@@ -3,7 +3,6 @@
 
 namespace App\Repository;
 
-
 interface DbManager
 {
 
@@ -18,5 +17,4 @@ interface DbManager
      * @return array
      */
     public function getById($id);
-
 }

@@ -14,6 +14,7 @@ final class LogoutController extends AbstractController
 
     /**
      * @Route("/logout", name="logout", methods={"DELETE", "GET"})
+     *
      * @throws \Exception
      */
     public function logout()

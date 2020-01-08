@@ -3,7 +3,6 @@
 
 namespace App\Domain\Product;
 
-
 final class Counter
 {
 
@@ -23,7 +22,8 @@ final class Counter
     /**
      * @return Counter
      */
-    public static function start(){
+    public static function start()
+    {
         return new self(0);
     }
 
@@ -46,5 +46,4 @@ final class Counter
     {
         return new $this($this->value + $numberOfModifications);
     }
-
 }

@@ -32,5 +32,4 @@ final class InventoryCheckRequestedException extends \Exception
     {
         return $this->productId;
     }
-
 }

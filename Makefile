@@ -1,3 +1,6 @@
+code-style:
+
+	docker-compose run --rm php /app/vendor/bin/php-cs-fixer -v fix --allow-risky yes
 
 ## -- Composer
 

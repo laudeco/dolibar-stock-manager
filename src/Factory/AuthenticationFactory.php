@@ -31,9 +31,10 @@ final class AuthenticationFactory
     /**
      * @return Authentication
      */
-    public function create(){
+    public function create()
+    {
         $user = $this->security->getUser();
-        if(!$user){
+        if (!$user) {
             return new NoAuthentication();
         }
 
@@ -42,5 +43,4 @@ final class AuthenticationFactory
 
         return new LoginAuthentication($login, $password);
     }
-
 }

@@ -24,8 +24,9 @@ final class ProductRepository extends DolibarrRepository
     /**
      * @return ProductsService
      */
-    protected function service(){
-        if(null !== $this->productService){
+    protected function service()
+    {
+        if (null !== $this->productService) {
             return $this->productService;
         }
 
@@ -42,9 +43,9 @@ final class ProductRepository extends DolibarrRepository
      */
     public function findAll(int $page = 0, int $limit = 100)
     {
-        try{
+        try {
             return $this->service()->getAll($page, $limit);
-        }catch(ResourceNotFoundException $exception){
+        } catch (ResourceNotFoundException $exception) {
             return new ArrayCollection();
         }
     }
@@ -56,7 +57,8 @@ final class ProductRepository extends DolibarrRepository
      *
      * @throws ApiException
      */
-    public function getByBarcode(string $barcode){
+    public function getByBarcode(string $barcode)
+    {
         return $this->service()->getByBarcode(new Barcode($barcode));
     }
 

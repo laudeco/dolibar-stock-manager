@@ -3,7 +3,6 @@
 
 namespace App\Repository\Dolibarr;
 
-
 use App\Factory\DolibarrClientFactory;
 use Dolibarr\Client\Client;
 use Dolibarr\Client\Security\Authentication\LoginAuthentication;
@@ -24,7 +23,7 @@ abstract class DolibarrRepository
 
     /**
      * @param DolibarrClientFactory $factory
-     * @param Security $security
+     * @param Security              $security
      */
     public function __construct(DolibarrClientFactory $factory, Security $security)
     {
@@ -35,9 +34,10 @@ abstract class DolibarrRepository
     /**
      * @return Client
      */
-    protected function client(){
+    protected function client()
+    {
         $user = $this->security->getUser();
-        if($user){
+        if ($user) {
             $this->factory->setAuthentication(new LoginAuthentication($user->getUsername(), $user->getPassword()));
         }
 
@@ -49,5 +49,5 @@ abstract class DolibarrRepository
      *
      * @return ProductsService
      */
-    protected abstract function service();
+    abstract protected function service();
 }

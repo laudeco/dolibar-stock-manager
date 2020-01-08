@@ -26,6 +26,7 @@ final class DolibarrUserProvider implements UserProviderInterface
 
     /**
      * DolibarrUserProvider constructor.
+     *
      * @param LoginService $loginService
      */
     public function __construct(LoginService $loginService)

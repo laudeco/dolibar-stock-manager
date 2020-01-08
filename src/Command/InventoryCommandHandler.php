@@ -48,10 +48,10 @@ final class InventoryCommandHandler
 
     /**
      * @param StockMovementRepository $stockService
-     * @param ProductRepository $productRepository
-     * @param InventoryRepository $inventoryRepository
-     * @param int $min
-     * @param int $max
+     * @param ProductRepository       $productRepository
+     * @param InventoryRepository     $inventoryRepository
+     * @param int                     $min
+     * @param int                     $max
      */
     public function __construct(
         StockMovementRepository $stockService,
@@ -123,6 +123,7 @@ final class InventoryCommandHandler
         }
 
         $this->productRepository->save($product);
+
         return $product->getCounter()->getValue();
     }
 
@@ -145,6 +146,7 @@ final class InventoryCommandHandler
         }
 
         $this->createRandomInventory($productId);
+
         throw new InventoryCheckRequestedException($productId);
     }
 
@@ -164,5 +166,4 @@ final class InventoryCommandHandler
 
         return $inventory;
     }
-
 }

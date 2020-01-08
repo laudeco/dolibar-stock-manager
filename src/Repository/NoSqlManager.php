@@ -28,6 +28,7 @@ final class NoSqlManager implements DbManager
 
     /**
      * NoSqlManager constructor.
+     *
      * @param string $basePath
      * @param string $table
      * @param string $index
@@ -49,7 +50,6 @@ final class NoSqlManager implements DbManager
      */
     private function fileName(array $element): string
     {
-
         if (!key_exists($this->index, $element)) {
             throw new \RuntimeException(sprintf('This element doesn\'t have the id %s', $this->index));
         }
@@ -59,6 +59,7 @@ final class NoSqlManager implements DbManager
 
     /**
      * @param mixed $id
+     *
      * @return string
      */
     private function fileNameById($id): string
@@ -102,6 +103,7 @@ final class NoSqlManager implements DbManager
         }
 
         $content = file_get_contents($path);
+
         return json_decode($content, true);
     }
 

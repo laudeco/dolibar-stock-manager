@@ -20,7 +20,7 @@ final class Inventory
     private $quantity;
 
     /**
-     * @param Product $product
+     * @param Product  $product
      * @param Quantity $quantity
      */
     private function __construct(Product $product, Quantity $quantity)
@@ -30,12 +30,13 @@ final class Inventory
     }
 
     /**
-     * @param Product $product
+     * @param Product  $product
      * @param Quantity $quantity
      *
      * @return Inventory
      */
-    public static function forProduct(Product $product, Quantity $quantity){
+    public static function forProduct(Product $product, Quantity $quantity)
+    {
         return new self($product, $quantity);
     }
 
@@ -64,5 +65,4 @@ final class Inventory
     {
         return $this->quantity->isLimitReached($counter);
     }
-
 }
