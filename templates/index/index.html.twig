@@ -1,5 +1,14 @@
 {% extends 'base.html.twig' %}
 
+ {% block stylesheets %}
+     <style type="text/css">
+         canvas.drawingBuffer{
+             max-width: 100%;
+             width: 100%;
+         }
+     </style>
+ {% endblock %}
+
 {% block body %}
     <!-- Login -->
     <div class="row mb-3">
@@ -19,7 +28,14 @@
     <div class="form-row">
         <div class="form-group col">
             <label for="product">Produit</label>
-            <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre" disabled="disabled">
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre" disabled="disabled">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" id="scanner" >Scan</button>
+                </div>
+
+            </div>
             <small id="productHelp" class="form-text text-muted d-none d-md-block">Le code barre du produit.</small>
         </div>
 
@@ -70,6 +86,26 @@
         <button class="btn btn-primary btn-lg btn-block" type="submit">Affecter le stock</button>
 
     </form>
+
+    <div class="modal" tabindex="-1" id="modal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="embed-responsive">
+                        <div id="scanner-zone"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary float-right" data-dismiss="modal" id="scanner-close">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 
@@ -210,6 +246,7 @@
                 input.reportValidity();
 
                 $('#product').removeAttr('disabled');
+                $('#scanner').removeAttr('disabled');
                 $('#qty').removeAttr('disabled');
             }
 
@@ -281,6 +318,53 @@
             });
 
         })(jQuery, Handlebars);
+    </script>
+
+    <script type="application/javascript">
+        (function($, Quagga){
+
+            function close(){
+                Quagga.stop();
+                $('#scanner-zone').html('');
+            }
+
+            function open(){
+                $('#modal').modal('show');
+            }
+
+            var scanner = function(){
+                Quagga.init({
+                    inputStream : {
+                        name : "Live",
+                        type : "LiveStream",
+                        target: document.querySelector('#scanner-zone')
+                    },
+                    decoder : {
+                        readers : [
+                            "code_128_reader",
+                        ]
+                    }
+                }, function(err) {
+                    if (err) {
+                        console.log(err);
+                        return
+                    }
+
+                    Quagga.start();
+                    open();
+                });
+
+
+                Quagga.onDetected(function(data){
+                    $('#product').val(data.codeResult.code);
+                    close();
+                    $('#modal').modal('hide');
+                });
+            };
+
+            $('#scanner').on('click', scanner);
+            $('#modal').on('hidden.bs.modal', close);
+        })(jQuery, Quagga);
     </script>
 
 {% endblock %}
