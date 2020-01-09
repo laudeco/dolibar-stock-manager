@@ -39,3 +39,8 @@ Library that allows to scan the barcode (code 128) from the UI. This library and
 ### Gitmoji
 To directly see what does one commit, I use [Gitmoji](https://gitmoji.carloscuesta.me/).
 
+
+# Known limits
+The stock manager doesn't support multiple warehouses. Currently, it's only in the config file that we hardcode the stock id.
+  
+The system doesn't support the serial numbers and the end date of a product.
