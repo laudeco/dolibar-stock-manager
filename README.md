@@ -35,7 +35,7 @@ I didn't add any test yet! I know it's bad but I will add them as soon as possib
 To directly see what does one commit, I use [Gitmoji](https://gitmoji.carloscuesta.me/).
 
 
-# Knowing limitations
-The stock manager doesn't support multiple wharehouses. Currently it's only in the config file that we hardcode the stock id.
-
+# Known limits
+The stock manager doesn't support multiple warehouses. Currently, it's only in the config file that we hardcode the stock id.
+  
 The system doesn't support the serial numbers and the end date of a product.
