@@ -12,6 +12,12 @@ If you do not have any account on the Dolibarr instance you cannot have access t
 
 The project include one native barcode scanner. Like that from a mobile device it's possible to scan the barcode. Currently only the code 128 barcode.
 
+## Known limitations
+The stock manager doesn't support multiple warehouses. Currently, it's only in the config file that we hardcode the stock id.
+  
+The system doesn't support the serial numbers and the end date of a product.
+
+
 ## Installation
 
 ### Configuration
@@ -63,16 +69,11 @@ Like that we will have two kind of names:
 ### Unit testing
 I didn't add any test yet! I know it's bad but I will add them as soon as possible. 
 
-### quaggaJS
+### QuaggaJS
 Library that allows to scan the barcode (code 128) from the UI. This library and its documentation are available on [github](https://github.com/serratus/quaggaJS).
 
-## Contributing
+## Contributions
+If you have any idea to make the application better don't hesitate to propose it.
 
 ### Gitmoji
 To directly see what does one commit, I use [Gitmoji](https://gitmoji.carloscuesta.me/).
-
-
-# Known limits
-The stock manager doesn't support multiple warehouses. Currently, it's only in the config file that we hardcode the stock id.
-  
-The system doesn't support the serial numbers and the end date of a product.
