@@ -12,6 +12,38 @@ If you do not have any account on the Dolibarr instance you cannot have access t
 
 The project include one native barcode scanner. Like that from a mobile device it's possible to scan the barcode. Currently only the code 128 barcode.
 
+## Installation
+
+### Configuration
+The configuration of the application is present in the _config/services.yaml_ file. 
+
+```
+parameters:
+
+    dolibarr_uri: 'docker.for.mac.localhost/api/index.php/' # Define the URI to API.
+
+    inventory_min: 1 #The min value for the random number before a new inventory check
+    inventory_max: 1 #The max value for the random number before a new inventory check
+    app_inventory_label: 'Correction du stock'  #Label for an inventory check movement
+    app_mouvement_label: 'Mouvement'  #Default label for a movement
+    app_stock_id: 1  #Warehouse ID
+
+    db_basepath: '../../data/nosql'  #The path for the storage data.
+```
+
+### Production
+To make the application production ready. Run install the dependencies:
+
+```
+composer install --no-dev
+```
+
+Change the `APP_ENV from the _.env_ file 
+```
+APP_ENV=prod
+```
+
+
 ## Technical point of view 
 
 This project uses [Symfony 5](http://symfony.com/), everything is not yet clean. Feel free to help on the project.  
