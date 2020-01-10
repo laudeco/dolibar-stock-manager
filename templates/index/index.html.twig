@@ -30,9 +30,9 @@
             <label for="product">Produit</label>
 
             <div class="input-group mb-3">
-                <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre" disabled="disabled">
+                <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" id="scanner" >Scan</button>
+                    <button class="btn btn-primary" type="button" id="scanner">Scan</button>
                 </div>
 
             </div>
@@ -41,7 +41,7 @@
 
         <div class="form-group col">
             <label for="qty">Quantité</label>
-            <input type="number" class="form-control" name="qty" id="qty" min="0" max="100"  disabled="disabled">
+            <input type="number" class="form-control" name="qty" id="qty" min="0" max="100">
         </div>
 
     </div>
@@ -117,7 +117,7 @@
 
         <tr id="{{id}}" class="{{warning}}">
             <td class="align-middle">
-                <span class="label">
+                <span class="label js-spinner">
                     <span class="spinner-border spinner-border-sm text-success" role="status"></span>
                 </span>
                 <br>
@@ -137,6 +137,11 @@
 
     <script type="application/javascript">
         (function($, Handlebars){
+            /**
+             * Handle the deferred promise.
+             */
+            var authenticateQ= $.Deferred();
+
             var StockMouvement = function(codeBarre, qty, operation, id){
                 this.codeBarre = codeBarre;
                 this.operation = operation;
@@ -170,6 +175,21 @@
                 return this.id;
             };
 
+            var UUId = function(){
+                var dt = new Date().getTime();
+                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = (dt + Math.random()*16)%16 | 0;
+                    dt = Math.floor(dt/16);
+                    return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+                });
+
+                this.id = uuid;
+            };
+
+            UUId.prototype.getValue = function(){
+                return this.id;
+            };
+
 
             function addEntry(obj){
                 var result = compile(obj);
@@ -194,40 +214,35 @@
                 })
             }
 
-            function generateId(){
-                var dt = new Date().getTime();
-                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    var r = (dt + Math.random()*16)%16 | 0;
-                    dt = Math.floor(dt/16);
-                    return (c=='x' ? r :(r&0x3|0x8)).toString(16);
-                });
+            function selectProduct(barcode, id){
+                console.log(authenticateQ.state());
+                if(authenticateQ.state() === 'pending'){
+                    authenticateQ.done(function(){
+                        getProduct(barcode, id);
+                    });
 
-                return uuid;
+                    return;
+                }
+
+                getProduct(barcode, id);
+
             }
 
-            function selectProduct(barcode){
-                var $q = $.Deferred();
-
+            function getProduct(barcode, id){
                 var q = $.ajax({
                     method: "GET",
                     url: "/index.php/api/products/"+barcode
                 });
 
                 q.done(function(product){
-                    $q.resolve(product);
+                    $("#"+id+" .label").html(product.label);
                 });
 
-                q.fail(function(data){
-                    if(data.status === 404){
-                        $q.reject('Produit non trouvé');
-                        return;
-                    }
-
-                    $q.reject('Erreur avec la recherche du produit');
-
+                q.fail(function(){
+                    $("#"+id).addClass('table-danger');
+                    $("#"+id+" input").remove();
+                    $("#"+id+" .label.js-spinner").remove();
                 });
-
-                return $q.promise();
             }
 
             // Authentication
@@ -245,9 +260,7 @@
                 input.setCustomValidity('');
                 input.reportValidity();
 
-                $('#product').removeAttr('disabled');
-                $('#scanner').removeAttr('disabled');
-                $('#qty').removeAttr('disabled');
+                authenticateQ.resolve();
             }
 
             function loginFail(response){
@@ -257,7 +270,7 @@
                 }
 
                 var $password = $('#password');
-                setErrorMessage($password, message)
+                setErrorMessage($password, message);
             }
 
 
@@ -274,22 +287,13 @@
             function mouvement(direction){
                 var barcode = $('input[name="product"]').val();
                 var qty = $('input[name="qty"]').val();
-                var id = generateId();
+                var id = new UUId();
 
-                addEntry(new StockMouvement(barcode, qty, direction, id));
+                addEntry(new StockMouvement(barcode, qty, direction, id.getValue()));
 
                 clearFields();
 
-                var q = selectProduct(barcode);
-                q.done(function(product){
-                    $("#"+id+" .label").html(product.label);
-                });
-
-                q.fail(function(){
-                    $("#"+id).addClass('table-danger');
-                    $("#"+id+" input").remove();
-                    $("#"+id+" .label").remove();
-                });
+                selectProduct(barcode, id.getValue());
             }
 
             //Listeners
