@@ -14,6 +14,7 @@ parameters:
     app_inventory_label: 'Correction du stock'
     app_mouvement_label: 'Mouvement'
     app_stock_id: 1
+    app_barcode_type: 'code_128_reader'
 
     # Db
     db_basepath: '../../data/nosql'

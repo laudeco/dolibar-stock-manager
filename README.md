@@ -33,9 +33,24 @@ parameters:
     app_inventory_label: 'Correction du stock'  #Label for an inventory check movement
     app_mouvement_label: 'Mouvement'  #Default label for a movement
     app_stock_id: 1  #Warehouse ID
+    app_barcode_type: 'code_128_reader' #The type of the barcode to choose between one of the supported type
 
     db_basepath: '../../data/nosql'  #The path for the storage data.
 ```
+
+#### Supported barcode type
+Currently, the library ([QuaggaJS](https://github.com/serratus/quaggaJS)) supports: 
+* code_128_reader (default)
+* ean_reader
+* ean_8_reader
+* code_39_reader
+* code_39_vin_reader
+* codabar_reader
+* upc_reader
+* upc_e_reader
+* i2of5_reader
+* 2of5_reader
+* code_93_reader
 
 ### Production
 To make the application production ready. Run install the dependencies:
@@ -70,7 +85,7 @@ Like that we will have two kind of names:
 I didn't add any test yet! I know it's bad but I will add them as soon as possible. 
 
 ### QuaggaJS
-Library that allows to scan the barcode (code 128) from the UI. This library and its documentation are available on [github](https://github.com/serratus/quaggaJS).
+Library that allows to scan the barcode from the UI. This library and its documentation are available on [github](https://github.com/serratus/quaggaJS).
 
 ## Contributions
 If you have any idea to make the application better don't hesitate to propose it.
