@@ -6,7 +6,7 @@ code-style:
 
 composer-install: ## Allows to manually launch the composer install command in case you did some manual changes
 
-	docker-compose run --rm composer install
+	docker-compose run --rm composer install $(p)
 
 composer-require: ## Allows to require new composer vendors. Usage: make composer-require p=symfony/assets
 

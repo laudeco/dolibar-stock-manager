@@ -74,7 +74,7 @@
                         <th>Actions</th>
                     </tr>
 
-                    <tbody id="selected_products">
+                    <tbody id="selected_products" data-url="{{ url('products_get_by_barcode',{'barcode':'hello'}) }}">
 
                     </tbody>
                 </table>
@@ -215,7 +215,6 @@
             }
 
             function selectProduct(barcode, id){
-                console.log(authenticateQ.state());
                 if(authenticateQ.state() === 'pending'){
                     authenticateQ.done(function(){
                         getProduct(barcode, id);
@@ -229,9 +228,11 @@
             }
 
             function getProduct(barcode, id){
+                var url = $("#selected_products").data('url');
+
                 var q = $.ajax({
                     method: "GET",
-                    url: "/index.php/api/products/"+barcode
+                    url: url.replace('hello', barcode)
                 });
 
                 q.done(function(product){

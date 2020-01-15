@@ -3,6 +3,9 @@
 
 namespace App\Command;
 
+use App\Domain\Product\Counter;
+use App\Domain\Product\Product;
+use App\Domain\Product\ProductId;
 use App\Repository\Dolibarr\ProductRepository;
 use App\Repository\Dolibarr\StockMovementRepository;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
@@ -24,13 +27,20 @@ final class InventoryCorrectionCommandHandler
     private $productRepository;
 
     /**
-     * @param StockMovementRepository $stockMovementRepository
-     * @param ProductRepository       $productRepository
+     * @var \App\Repository\ProductRepository
      */
-    public function __construct(StockMovementRepository $stockMovementRepository, ProductRepository $productRepository)
+    private $localProductRepository;
+
+    /**
+     * @param StockMovementRepository $stockMovementRepository
+     * @param ProductRepository $productRepository
+     * @param \App\Repository\ProductRepository $productRepo
+     */
+    public function __construct(StockMovementRepository $stockMovementRepository, ProductRepository $productRepository, \App\Repository\ProductRepository $productRepo)
     {
         $this->stockMovementRepository = $stockMovementRepository;
         $this->productRepository = $productRepository;
+        $this->localProductRepository = $productRepo;
     }
 
 
@@ -58,5 +68,8 @@ final class InventoryCorrectionCommandHandler
         $dolibarrMovement->setInventoryCode($command->getDueDate()->format(DATE_ATOM));
 
         $this->stockMovementRepository->save($dolibarrMovement);
+
+        $prod = new Product(new ProductId($product->getId()), Counter::start());
+        $this->localProductRepository->save($prod);
     }
 }
