@@ -32,8 +32,8 @@ final class InventoryCorrectionCommandHandler
     private $localProductRepository;
 
     /**
-     * @param StockMovementRepository $stockMovementRepository
-     * @param ProductRepository $productRepository
+     * @param StockMovementRepository           $stockMovementRepository
+     * @param ProductRepository                 $productRepository
      * @param \App\Repository\ProductRepository $productRepo
      */
     public function __construct(StockMovementRepository $stockMovementRepository, ProductRepository $productRepository, \App\Repository\ProductRepository $productRepo)

@@ -23,6 +23,7 @@ final class IndexController extends AbstractController
     public function index(Request $request)
     {
         $login = $request->get('l', $request->get('login', ''));
+
         return $this->render('index/index.html.twig', ['login' => $login]);
     }
 }
