@@ -61,6 +61,7 @@ final class SubmissionController extends AbstractController
      * @param Request $request
      *
      * @return Response
+     * @throws \Exception
      */
     public function index(Request $request)
     {
@@ -80,6 +81,7 @@ final class SubmissionController extends AbstractController
      * @param Request $request
      *
      * @return Response
+     * @throws \Exception
      */
     public function handleInventoryAction(Request $request)
     {
@@ -99,33 +101,47 @@ final class SubmissionController extends AbstractController
 
     /**
      * @param Request $request
-     * @param string  $defaultLabel
+     * @param string $defaultLabel
      *
      * @return Transaction
+     * @throws \Exception
      */
     private function buildTransaction(Request $request, string $defaultLabel): Transaction
     {
         $barcodes = $request->request->get('barcode', []);
         $qty = $request->request->get('qty', []);
+        $serials = $request->request->get('serial', []);
+        $dlc = $request->request->get('dlc', []);
+
         $label = $request->request->get('label', '');
+
         if (empty($label)) {
             $label = $defaultLabel;
         }
 
         $transaction = new Transaction($label);
         $products = [];
+        $batchProduct = [];
         $i = 0;
         foreach ($barcodes as $currentBarcode) {
             if (!isset($products[$currentBarcode])) {
                 try {
                     $product = $this->productQueryHandler->__invoke(new GetProductByBarcodeQuery($currentBarcode));
                     $products[$currentBarcode] = $product->getId();
+
+                    if($product->serialNumberable()){
+                        $batchProduct[] = $currentBarcode;
+                    }
                 } catch (ApiException $e) {
                     throw new HttpException(500);
                 }
             }
 
-            $transaction->add(StockMovement::move($currentBarcode, $products[$currentBarcode], $qty[$i]));
+            if(in_array($currentBarcode, $batchProduct)){
+                $transaction->add(StockMovement::batch($currentBarcode, $products[$currentBarcode], $qty[$i], $serials[$i], new \DateTimeImmutable($dlc[$i])));
+            }else{
+                $transaction->add(StockMovement::move($currentBarcode, $products[$currentBarcode], $qty[$i]));
+            }
             $i++;
         }
 
@@ -144,6 +160,11 @@ final class SubmissionController extends AbstractController
         foreach ($transaction->getMovements() as $movement) {
             try {
                 $command = new InventoryCommand($transaction->getLabel(), $transaction->getDueDate(), $this->getParameter('app_stock_id'), $movement->getProductId(), $movement->getQuantity());
+
+                if($movement->isBatch()){
+                    $command->batch($movement->getSerial(), $movement->getDlc());
+                }
+
                 $this->handler->__invoke($command);
             } catch (InventoryCheckRequestedException $e) {
                 $productRequiresInventoryCheck[] = $e->getProductId();

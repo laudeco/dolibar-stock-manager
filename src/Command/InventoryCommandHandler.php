@@ -102,6 +102,15 @@ final class InventoryCommandHandler
         $dolibarrMovement->setLabel($command->getLabel());
         $dolibarrMovement->setInventoryCode($command->getDueDate()->format(DATE_ATOM));
 
+        if($command->isBatch()){
+            $dolibarrMovement->setLot($command->getSerial());
+
+            if(null !== $command->getDlc()){
+                $dolibarrMovement->setDlc($command->getDlc());
+            }
+        }
+
+
         $this->stockMovementRepository->save($dolibarrMovement);
     }
 
