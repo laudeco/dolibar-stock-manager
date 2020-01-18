@@ -30,6 +30,11 @@ final class Product
     private $stock;
 
     /**
+     * @var bool
+     */
+    private $serialNumberable;
+
+    /**
      * @return string
      */
     public function getCodebar(): string
@@ -91,5 +96,21 @@ final class Product
     public function getStock(): int
     {
         return $this->stock;
+    }
+
+    /**
+     * @return bool
+     */
+    public function serialNumberable()
+    {
+        return $this->serialNumberable;
+    }
+
+    /**
+     * @param bool $serialNumber
+     */
+    public function setSerialNumberable($serialNumber)
+    {
+        $this->serialNumberable = $serialNumber;
     }
 }

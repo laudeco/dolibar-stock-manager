@@ -71,6 +71,8 @@
                     <tr>
                         <th>Produit</th>
                         <th>Quantité</th>
+                        <th>Numéro de serie</th>
+                        <th>DLC</th>
                         <th>Actions</th>
                     </tr>
 
@@ -128,6 +130,21 @@
                 {{ qty }}
                 <input type="hidden" name="qty[]" value="{{ qty }}" />
             </td>
+
+            <!-- Serial -->
+            <td class="align-middle js-serial">
+                <input type="text" class="d-none" name="serial[]"/>
+            </td>
+
+            <!-- serial & increase = DLC-->
+            {{#if increase}}
+            <td class="align-middle js-serial">
+                <input type="date" class="d-none" name="dlc[]"/>
+            </td>
+            {{else}}
+                <td></td>
+            {{/if}}
+
             <td class="align-middle">
                 <button type="button" class="btn btn-outline-danger btn-sm js-remove-row" data-remove="{{id}}">X</button>
             </td>
@@ -210,7 +227,8 @@
                     },
                     'qty' : obj.getQuantity(),
                     'id' : obj.getId(),
-                    'warning' : obj.getQuantity() === 0 ? 'table-warning' : ''
+                    'warning' : obj.getQuantity() === 0 ? 'table-warning' : '',
+                    'increase' : obj.isIncrease()
                 })
             }
 
@@ -237,6 +255,11 @@
 
                 q.done(function(product){
                     $("#"+id+" .label").html(product.label);
+
+                    if(product.serialSupport){
+                        $("#"+id+" .js-serial .d-none").removeClass('d-none');
+                    }
+
                 });
 
                 q.fail(function(){

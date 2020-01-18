@@ -55,6 +55,7 @@ final class ProductController extends AbstractController
             return new JsonResponse([
                 'label'   => $product->getLabel(),
                 'barcode' => $product->getCodebar(),
+                'serialSupport' =>$product->serialNumberable()
             ]);
         } catch (ApiException $e) {
             throw new HttpException(500, $e->getMessage());
