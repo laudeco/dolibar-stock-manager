@@ -108,7 +108,7 @@ final class InventoryCommand
     }
 
     /**
-     * @param string $serial
+     * @param string                  $serial
      * @param \DateTimeImmutable|null $dlc
      */
     public function batch(string $serial, \DateTimeImmutable $dlc = null)
@@ -136,8 +136,8 @@ final class InventoryCommand
     /**
      * @return bool
      */
-    public function isBatch(){
+    public function isBatch()
+    {
         return null !== $this->serial;
     }
-
 }

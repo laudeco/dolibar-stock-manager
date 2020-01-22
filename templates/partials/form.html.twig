@@ -1,0 +1,147 @@
+<h3 class="">Selection du produit</h3>
+
+<!-- product -->
+<div class="form-row">
+    <div class="form-group col">
+        <label for="product">Produit</label>
+
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="product" name="product" aria-describedby="productHelp" placeholder="code barre">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="scanner">Scan</button>
+            </div>
+
+        </div>
+        <small id="productHelp" class="form-text text-muted d-none d-md-block">Le code barre du produit.</small>
+    </div>
+
+    <div class="form-group col">
+        <label for="qty">Quantité</label>
+        <input type="number" class="form-control" name="qty" id="qty" min="0" max="100">
+    </div>
+
+</div>
+
+<div class="form-row mb-4">
+    <div class="col">
+        <button type="button" class="btn btn-success btn-lg btn-block js-button-increment-stock">+</button>
+    </div>
+    <div class="col">
+        <button type="button" class="btn btn-danger btn-lg btn-block js-button-decrease-stock">-</button>
+    </div>
+</div>
+
+<h3>Produits sélectionnés</h3>
+
+<form method="POST" action="{{ url('process') }}">
+    <div class="form-row">
+        <div class="form-group col">
+            <label for="label">Label</label>
+            <input type="text" class="form-control" id="label" name="label" placeholder="label pour la transaction">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Numéro de serie</th>
+                    <th>DLC</th>
+                    <th>Actions</th>
+                </tr>
+
+                <tbody id="selected_products" data-url="{{ url('products_get_by_barcode',{'barcode':'hello'}) }}">
+
+                {% for movement in movements %}
+                    <tr id="id_product_{{ loop.index0 }}" {% if movement.failed() %} class="table-danger"{% endif %}>
+                        <td class="align-middle">
+                            <span class="label">
+                                {{ movement.getProductLabel() }}
+                            </span>
+                            <br>
+                            <em class="text-muted text-i">{{movement.getBarcode()}}</em>
+
+                            {% if movement.failed() %}
+                                <input type="hidden" name="barcode[]" value="{{movement.getBarcode()}}" />
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">
+                            {{ movement.getQuantity() }}
+
+                            {% if movement.failed() %}
+                                <input type="hidden" name="qty[]" value="{{ movement.getQuantity() }}" />
+                            {% endif %}
+                        </td>
+
+                        <!-- Serial -->
+                        <td class="align-middle js-serial">
+                            {% if movement.failed()%}
+                                {% if movement.isBatch() %}
+                                    <input type="text" name="serial[]" required />
+                                {% else %}
+                                    <input type="hidden" name="serial[]" value=""/>
+                                {% endif %}
+                            {% else %}
+                                <span>{{ movement.getSerial() }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- serial & increase = DLC-->
+                        <td class="align-middle js-serial">
+                            {% if movement.failed() %}
+                                {% if movement.getQuantity() > 0 and movement.isBatch() %}
+                                    <input type="date" name="dlc[]" required/>
+                                {% else %}
+                                    <input type="hidden" name="dlc[]"/>
+                                {% endif %}
+                            {% else %}
+                                {% if movement.getQuantity() > 0 and movement.isBatch() %}
+                                    <span>{{ movement.getDlc().format('d/m/Y') }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+
+                        <td class="align-middle">
+                            {% if movement.failed() %}
+                                <button type="button" class="btn btn-outline-danger btn-sm js-remove-row" data-remove="id_product_{{ loop.index0 }}">X</button>
+                            {% else %}
+                                <span class="btn btn-sm btn-success">V</span>
+                            {% endif %}
+
+
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr class="mb-4">
+
+    <button class="btn btn-primary btn-lg btn-block" type="submit">Affecter le stock</button>
+
+</form>
+
+<div class="modal" tabindex="-1" id="modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive">
+                    <div id="scanner-zone"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary float-right" data-dismiss="modal" id="scanner-close">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
