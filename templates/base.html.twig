@@ -25,6 +25,23 @@
 
         <main>
             <div class="container mt-4">
+
+                <div class="row mb-3">
+                    <div class="col">
+                        {% for message in app.flashes('error') %}
+                            <p class="alert alert-danger" role="alert">
+                                {{ message }}
+                            </p>
+                        {% endfor %}
+
+                        {% for message in app.flashes('success') %}
+                            <p class="alert alert-success" role="alert">
+                                {{ message }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 {% block body %}{% endblock %}
             </div>
         </main>

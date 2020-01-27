@@ -273,6 +273,9 @@
             "templates/base.html.twig"
         ]
     },
+    "symfony/twig-pack": {
+        "version": "v1.0.0"
+    },
     "symfony/var-dumper": {
         "version": "v5.0.2"
     },
@@ -295,6 +298,9 @@
     },
     "symfony/yaml": {
         "version": "v5.0.2"
+    },
+    "twig/extra-bundle": {
+        "version": "v3.0.1"
     },
     "twig/twig": {
         "version": "v3.0.1"

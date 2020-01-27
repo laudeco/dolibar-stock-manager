@@ -33,6 +33,10 @@ final class Product
      * @var bool
      */
     private $serialNumberable;
+    /**
+     * @var bool
+     */
+    private $stockUsage;
 
     /**
      * @return string
@@ -112,5 +116,21 @@ final class Product
     public function setSerialNumberable($serialNumber)
     {
         $this->serialNumberable = $serialNumber;
+    }
+
+    /**
+     * @param bool $isBatchUsage
+     */
+    public function setStockUsage(bool $isBatchUsage)
+    {
+        $this->stockUsage = $isBatchUsage;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStockUsage(): bool
+    {
+        return $this->stockUsage;
     }
 }

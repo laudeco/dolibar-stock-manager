@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package App\Controller
@@ -74,7 +74,7 @@ final class SubmissionController extends AbstractController
             $productRequiresInventoryCheck = $this->handleTransaction($transaction);
 
             if (empty($productRequiresInventoryCheck)) {
-                return $this->redirectToRoute('logout');
+                return $this->success();
             }
 
             return $this->forward(InventoryController::class.'::indexAction', [], ['products' => $productRequiresInventoryCheck]);
@@ -100,12 +100,14 @@ final class SubmissionController extends AbstractController
             try {
                 $command = new InventoryCorrectionCommand($transaction->getLabel(), $transaction->getDueDate(), $this->getParameter('app_stock_id'), $movement->getProductId(), $movement->getQuantity());
                 $this->inventoryCorrectionHandler->__invoke($command);
+
+                $this->addFlash('success', sprintf('Inventory for : %s - OK', $movement->getProductLabel()));
             } catch (ApiException $e) {
                 throw new HttpException(500);
             }
         }
 
-        return $this->redirectToRoute('logout');
+        return $this->success();
     }
 
     /**
@@ -114,6 +116,7 @@ final class SubmissionController extends AbstractController
      * @return array
      *
      * @throws ActionException
+     * @throws \App\Exception\ProductNotFoundException
      */
     private function handleTransaction(Transaction $transaction): array
     {
@@ -215,5 +218,13 @@ final class SubmissionController extends AbstractController
         }
 
         return $transaction;
+    }
+
+    /**
+     * @return Response
+     */
+    private function success(): Response
+    {
+        return $this->render('submission/success.html.twig');
     }
 }

@@ -16,7 +16,7 @@ use App\Repository\ProductRepository;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Repository\Dolibarr\ProductRepository as DolibarrProductRepository;
-use Dolibarr\Client\Domain\Product\Product as DolibarrProduct;
+use App\ViewModel\Product as DolibarrProduct;
 
 /**
  * @package App\Command
@@ -124,7 +124,7 @@ final class InventoryCommandHandler
             $dolibarrMovement->setLot($command->getSerial());
 
             if (null !== $command->getDlc()) {
-                $dolibarrMovement->setDlc($command->getDlc());
+                $dolibarrMovement->setDlc($command->getDlc()); //Bug on Dolibarr
             }
         }
 
@@ -162,7 +162,7 @@ final class InventoryCommandHandler
      */
     private function inventoryCheck(DolibarrProduct $product, int $counter): void
     {
-        if ($product->isBatchUsage()) {
+        if ($product->isStockUsage()) {
             return;
         }
 

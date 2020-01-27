@@ -79,6 +79,7 @@ final class ProductRepository extends DolibarrRepository
         $viewProduct->setCodebar($product->getBarcode());
         $viewProduct->setId($product->getId());
         $viewProduct->setStock($product->getRealStock());
+        $viewProduct->setStockUsage($product->isBatchUsage());
 
         return $viewProduct;
     }

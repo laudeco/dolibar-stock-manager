@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row justify-content-start">
+        <div class="col-md-3">
+            <a href="{{ url('logout') }}" class="btn btn-success btn-lg js-automatic">Ok !</a>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="application/javascript">
+        (function ($) {
+            setTimeout(function(){
+                window.location = $('.js-automatic').attr('href');
+            }, 300);
+
+        })(jQuery);
+    </script>
+{% endblock %}
