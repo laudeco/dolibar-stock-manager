@@ -2,6 +2,7 @@
     "name": "laudeco/dolibarr_stock_manager",
     "type": "project",
     "require": {
+        "php": "^7.2",
         "laudeco/dolibarr-client": "^0.3.1",
         "symfony/console": "^5.0",
         "symfony/flex": "^1.6",

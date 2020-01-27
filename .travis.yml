@@ -6,5 +6,6 @@ php:
 
 install:
   - composer install --no-interaction
+
 script:
   - phpunit --configuration phpunit.xml.dist
