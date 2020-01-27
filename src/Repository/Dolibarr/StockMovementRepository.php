@@ -11,7 +11,7 @@ use Dolibarr\Client\Service\StockMovementsService;
 /**
  * @package App\Repository\Dolibarr
  */
-final class StockMovementRepository extends DolibarrRepository
+class StockMovementRepository extends DolibarrRepository
 {
     /**
      * @var StockMovementsService

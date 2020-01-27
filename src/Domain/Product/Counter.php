@@ -24,7 +24,7 @@ final class Counter
      */
     public static function start()
     {
-        return new self(0);
+        return new self(1);
     }
 
     /**

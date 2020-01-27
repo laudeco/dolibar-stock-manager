@@ -7,7 +7,7 @@ use App\Domain\Product\Counter;
 use App\Domain\Product\Product;
 use App\Domain\Product\ProductId;
 
-final class ProductRepository
+class ProductRepository
 {
     /**
      * @var DbManager

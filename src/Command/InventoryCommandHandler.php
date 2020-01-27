@@ -86,7 +86,7 @@ final class InventoryCommandHandler
      * @throws InventoryCheckRequestedException
      * @throws ProductNotFoundException
      */
-    public function __invoke(InventoryCommand $command)
+    public function __invoke(InventoryCommand $command):void
     {
         try {
             $product = $this->dolibarrProductRepository->getById($command->getProductId());
@@ -96,8 +96,11 @@ final class InventoryCommandHandler
 
         $this->persist($command);
 
-        $numberOfMovements = $this->increaseUpdate($command->getProductId());
+        if ($product->serialNumberable()) {
+            return;
+        }
 
+        $numberOfMovements = $this->increaseUpdate($command->getProductId());
         $this->inventoryCheck($product, $numberOfMovements);
     }
 
@@ -124,7 +127,7 @@ final class InventoryCommandHandler
             $dolibarrMovement->setLot($command->getSerial());
 
             if (null !== $command->getDlc()) {
-                $dolibarrMovement->setDlc($command->getDlc()); //Bug on Dolibarr
+                $dolibarrMovement->setDlc($command->getDlc());
             }
         }
 
@@ -162,10 +165,6 @@ final class InventoryCommandHandler
      */
     private function inventoryCheck(DolibarrProduct $product, int $counter): void
     {
-        if ($product->isStockUsage()) {
-            return;
-        }
-
         try {
             $inventory = $this->inventoryRepository->getById($product->getId());
         } catch (ResourceNotFoundException $e) {

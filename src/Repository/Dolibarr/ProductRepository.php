@@ -14,7 +14,7 @@ use Dolibarr\Client\Service\ProductsService;
 /**
  * @package App\Repository
  */
-final class ProductRepository extends DolibarrRepository
+class ProductRepository extends DolibarrRepository
 {
     /**
      * @var ProductsService
@@ -79,7 +79,7 @@ final class ProductRepository extends DolibarrRepository
         $viewProduct->setCodebar($product->getBarcode());
         $viewProduct->setId($product->getId());
         $viewProduct->setStock($product->getRealStock());
-        $viewProduct->setStockUsage($product->isBatchUsage());
+        $viewProduct->setSerialNumberable($product->isBatchUsage());
 
         return $viewProduct;
     }
