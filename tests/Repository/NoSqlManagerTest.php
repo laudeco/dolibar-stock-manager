@@ -46,7 +46,7 @@ final class NoSqlManagerTest extends TestCase
         ];
 
         $this->manager->save($toSave);
-        $this->assertFileEquals('../data/expects/read_test_table_999.json', '../../data/nosql/test_table_999.json');
+        $this->assertFileEquals(__DIR__.'/../data/expects/read_test_table_999.json', __DIR__.'/../../data/nosql/test_table_999.json');
     }
 
     /**
@@ -76,6 +76,6 @@ final class NoSqlManagerTest extends TestCase
      */
     public static function tearDownAfterClass(): void
     {
-        unlink('../../data/nosql/test_table_999.json');
+        unlink(__DIR__.'/../../data/nosql/test_table_999.json');
     }
 }
