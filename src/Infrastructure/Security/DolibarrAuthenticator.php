@@ -6,18 +6,25 @@ namespace App\Infrastructure\Security;
 use Dolibarr\Client\Exception\ApiException;
 use Dolibarr\Client\Service\LoginService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 
 /**
  * @package App\Infrastructure\Security
  */
-final class DolibarrAuthenticator extends AbstractGuardAuthenticator
+final class DolibarrAuthenticator extends AbstractFormLoginAuthenticator
 {
 
     /**
@@ -26,11 +33,20 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     private $loginService;
 
     /**
-     * @param LoginService $loginService
+     * @var RouterInterface
      */
-    public function __construct(LoginService $loginService)
+    private $router;
+
+    /**
+     * @var CsrfTokenManagerInterface
+     */
+    private $csrfTokenManager;
+
+    public function __construct(LoginService $loginService, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->loginService = $loginService;
+        $this->router = $router;
+        $this->csrfTokenManager = $csrfTokenManager;
     }
 
     /**
@@ -53,8 +69,9 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         return [
-            'login'    => $request->request->get('username'),
-            'password' => $request->request->get('password'),
+            'login'      => $request->request->get('username'),
+            'password'   => $request->request->get('password'),
+            'csrf_token' => $request->request->get('_csrf_token')
         ];
     }
 
@@ -66,16 +83,14 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
         $login = $credentials['login'];
         $password = $credentials['password'];
 
-        if (null === $login || null === $password) {
-            return null;
-        }
+        $this->validateCsrf(new CsrfToken('authenticate', $credentials['csrf_token']));
 
         try {
             $this->loginService->login($login, $password);
 
             return new User($login, $password);
         } catch (ApiException $e) {
-            return null;
+            throw new CustomUserMessageAuthenticationException('Erreur de login');
         }
     }
 
@@ -92,32 +107,7 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        // on success, let the request continue
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
-    {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-        ];
-
-        return new JsonResponse($data, Response::HTTP_FORBIDDEN);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function start(Request $request, AuthenticationException $authException = null)
-    {
-        $data = [
-            'message' => 'Authentication Required'
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return new RedirectResponse($this->router->generate('index'));
     }
 
     /**
@@ -126,5 +116,22 @@ final class DolibarrAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe()
     {
         return false;
+    }
+
+    /**
+     * Return the URL to the login page.
+     *
+     * @return string
+     */
+    protected function getLoginUrl()
+    {
+        return $this->router->generate('login_screen');
+    }
+
+    private function validateCsrf(CsrfToken $token): void
+    {
+        if (!$this->csrfTokenManager->isTokenValid($token)) {
+            throw new InvalidCsrfTokenException();
+        }
     }
 }

@@ -58,7 +58,6 @@ final class TransactionBuilder
         Assert::notEmpty($barcodes);
         Assert::allCount([$qty, $serials, $dlc, $warehouses], count($barcodes));
 
-
         $transaction = new Transaction($label);
         $i = 0;
         foreach ($barcodes as $currentBarcode) {
