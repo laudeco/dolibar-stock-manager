@@ -57,6 +57,10 @@ final class InventoryCorrectionCommandHandler
             return;
         }
 
+        if ($product->serialNumberable()) {
+            return;
+        }
+
         $dolibarrMovement = new StockMovement();
 
         $dolibarrMovement->setProductId($command->getProductId());

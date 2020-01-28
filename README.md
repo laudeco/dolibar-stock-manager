@@ -10,14 +10,12 @@ The project does not require any user access, if you are known on the Dolibarr i
 That being said, this project can be public on the internet since it does not expose any sensitive data to the user.
 If you do not have any account on the Dolibarr instance you cannot have access to the products.
 
-The project include one native barcode scanner. Like that from a mobile device it's possible to scan the barcode. Currently only the code 128 barcode.
+The project include one native barcode scanner. It's possible to scan the barcode from a mobile device. Currently only the code 128 barcode.
 
 ## Known limitations
 The stock manager doesn't support multiple warehouses. Currently, it's only in the config file that we hardcode the stock id.
-  
-The system doesn't support the serial numbers and the end date of a product.
 
-
+There is not translation.
 ## Installation
 
 ### Configuration

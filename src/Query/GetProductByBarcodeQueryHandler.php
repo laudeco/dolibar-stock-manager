@@ -45,6 +45,7 @@ final class GetProductByBarcodeQueryHandler
             $apiProduct->setLabel($currentProduct->getLabel());
             $apiProduct->setCodebar($currentProduct->getBarcode());
             $apiProduct->setId(intval($currentProduct->getId(), 10));
+            $apiProduct->setSerialNumberable($currentProduct->isBatchUsage());
 
             return $apiProduct;
         } catch (ResourceNotFoundException $e) {

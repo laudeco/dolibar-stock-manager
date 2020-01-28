@@ -37,6 +37,16 @@ final class InventoryCommand
     private $quantity;
 
     /**
+     * @var string|null
+     */
+    private $serial;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    private $dlc;
+
+    /**
      * @param string             $label
      * @param \DateTimeImmutable $dueDate
      * @param int                $stockId
@@ -95,5 +105,39 @@ final class InventoryCommand
     public function getQuantity(): int
     {
         return $this->quantity;
+    }
+
+    /**
+     * @param string                  $serial
+     * @param \DateTimeImmutable|null $dlc
+     */
+    public function batch(string $serial, \DateTimeImmutable $dlc = null)
+    {
+        $this->serial = $serial;
+        $this->dlc = $dlc;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSerial(): ?string
+    {
+        return $this->serial;
+    }
+
+    /**
+     * @return \DateTimeImmutable|null
+     */
+    public function getDlc(): ?\DateTimeInterface
+    {
+        return $this->dlc;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBatch()
+    {
+        return null !== $this->serial;
     }
 }

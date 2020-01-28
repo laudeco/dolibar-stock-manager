@@ -10,7 +10,7 @@ use App\Domain\Inventory\Quantity;
 /**
  * @package App\Repository
  */
-final class InventoryRepository
+class InventoryRepository
 {
 
     /**

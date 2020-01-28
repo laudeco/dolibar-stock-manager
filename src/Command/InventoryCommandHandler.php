@@ -9,11 +9,14 @@ use App\Domain\Product\Counter;
 use App\Domain\Product\Product;
 use App\Domain\Product\ProductId;
 use App\Exception\InventoryCheckRequestedException;
+use App\Exception\ProductNotFoundException;
 use App\Repository\Dolibarr\StockMovementRepository;
 use App\Repository\InventoryRepository;
 use App\Repository\ProductRepository;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use App\Repository\Dolibarr\ProductRepository as DolibarrProductRepository;
+use App\ViewModel\Product as DolibarrProduct;
 
 /**
  * @package App\Command
@@ -47,22 +50,30 @@ final class InventoryCommandHandler
     private $max;
 
     /**
-     * @param StockMovementRepository $stockService
-     * @param ProductRepository       $productRepository
-     * @param InventoryRepository     $inventoryRepository
-     * @param int                     $min
-     * @param int                     $max
+     * @var DolibarrProductRepository
+     */
+    private $dolibarrProductRepository;
+
+    /**
+     * @param StockMovementRepository   $stockService
+     * @param ProductRepository         $productRepository
+     * @param InventoryRepository       $inventoryRepository
+     * @param DolibarrProductRepository $dolibarrProductRepository
+     * @param int                       $min
+     * @param int                       $max
      */
     public function __construct(
         StockMovementRepository $stockService,
         ProductRepository $productRepository,
         InventoryRepository $inventoryRepository,
+        DolibarrProductRepository $dolibarrProductRepository,
         int $min,
         int $max
     ) {
         $this->stockMovementRepository = $stockService;
         $this->productRepository = $productRepository;
         $this->inventoryRepository = $inventoryRepository;
+        $this->dolibarrProductRepository = $dolibarrProductRepository;
         $this->min = $min;
         $this->max = $max;
     }
@@ -73,14 +84,24 @@ final class InventoryCommandHandler
      *
      * @throws \Dolibarr\Client\Exception\ApiException
      * @throws InventoryCheckRequestedException
+     * @throws ProductNotFoundException
      */
-    public function __invoke(InventoryCommand $command)
+    public function __invoke(InventoryCommand $command):void
     {
+        try {
+            $product = $this->dolibarrProductRepository->getById($command->getProductId());
+        } catch (\Dolibarr\Client\Exception\ResourceNotFoundException $e) {
+            throw new ProductNotFoundException();
+        }
+
         $this->persist($command);
 
-        $numberOfMovements = $this->increaseUpdate($command->getProductId());
+        if ($product->serialNumberable()) {
+            return;
+        }
 
-        $this->inventoryCheck($command->getProductId(), $numberOfMovements);
+        $numberOfMovements = $this->increaseUpdate($command->getProductId());
+        $this->inventoryCheck($product, $numberOfMovements);
     }
 
     /**
@@ -101,6 +122,15 @@ final class InventoryCommandHandler
 
         $dolibarrMovement->setLabel($command->getLabel());
         $dolibarrMovement->setInventoryCode($command->getDueDate()->format(DATE_ATOM));
+
+        if ($command->isBatch()) {
+            $dolibarrMovement->setLot($command->getSerial());
+
+            if (null !== $command->getDlc()) {
+                $dolibarrMovement->setDlc($command->getDlc());
+            }
+        }
+
 
         $this->stockMovementRepository->save($dolibarrMovement);
     }
@@ -128,26 +158,26 @@ final class InventoryCommandHandler
     }
 
     /**
-     * @param int $productId
-     * @param int $counter
+     * @param DolibarrProduct $product
+     * @param int             $counter
      *
      * @throws InventoryCheckRequestedException
      */
-    private function inventoryCheck(int $productId, int $counter): void
+    private function inventoryCheck(DolibarrProduct $product, int $counter): void
     {
         try {
-            $inventory = $this->inventoryRepository->getById($productId);
+            $inventory = $this->inventoryRepository->getById($product->getId());
         } catch (ResourceNotFoundException $e) {
-            $inventory = $this->createRandomInventory($productId);
+            $inventory = $this->createRandomInventory($product->getId());
         }
 
         if (!$inventory->isLimitReached($counter)) {
             return;
         }
 
-        $this->createRandomInventory($productId);
+        $this->createRandomInventory($product->getId());
 
-        throw new InventoryCheckRequestedException($productId);
+        throw new InventoryCheckRequestedException($product->getId());
     }
 
     /**

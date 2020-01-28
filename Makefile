@@ -16,6 +16,9 @@ composer-update: ## Allows to update 1 or all composer vendors. Usage: make comp
 
 	docker-compose run --rm composer update $(p)
 
+composer:
+
+	docker-compose run --rm composer $(p)
 
 ## -- Docker compose
 
