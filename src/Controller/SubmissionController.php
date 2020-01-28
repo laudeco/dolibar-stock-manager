@@ -168,6 +168,7 @@ final class SubmissionController extends AbstractController
         $qty = $request->request->get('qty', []);
         $serials = $request->request->get('serial', []);
         $dlc = $request->request->get('dlc', []);
+        $warehouses = $request->request->get('warehouses', []);
 
         $label = $request->request->get('label', '');
 
@@ -197,7 +198,7 @@ final class SubmissionController extends AbstractController
             }
 
             if (!in_array($currentBarcode, $batchProduct)) {
-                $transaction->add(StockMovement::move($labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i]));
+                $transaction->add(StockMovement::move($warehouses[$i], $labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i]));
                 $i++;
 
                 continue;
@@ -213,7 +214,7 @@ final class SubmissionController extends AbstractController
                 $dlcDate = new \DateTimeImmutable($dlc[$i]);
             }
 
-            $transaction->add(StockMovement::batch($labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i], $serials[$i], $dlcDate));
+            $transaction->add(StockMovement::batch($warehouses[$i], $labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i], $serials[$i], $dlcDate));
             $i++;
         }
 
