@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\ProductNotFoundException;
 use App\Query\GetProductByBarcodeQuery;
 use App\Query\GetProductByBarcodeQueryHandler;
 use Dolibarr\Client\Exception\ApiException;
@@ -57,6 +58,8 @@ final class ProductController extends AbstractController
                 'barcode'       => $product->getCodebar(),
                 'serialSupport' => $product->serialNumberable()
             ]);
+        } catch (ProductNotFoundException $e) {
+            throw new HttpException(404, $e->getMessage());
         } catch (ApiException $e) {
             throw new HttpException(500, $e->getMessage());
         }

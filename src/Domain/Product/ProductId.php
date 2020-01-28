@@ -3,26 +3,28 @@
 
 namespace App\Domain\Product;
 
+use Webmozart\Assert\Assert;
+
 final class ProductId
 {
 
     /**
-     * @var string
+     * @var int
      */
     private $id;
 
-    /**
-     * @param string $id
-     */
-    public function __construct(string $id)
+    public function __construct(int $id)
     {
+        $this->validate($id);
         $this->id = $id;
     }
 
-    /**
-     * @return string
-     */
-    public function getId(): string
+    private function validate(int $id)
+    {
+        Assert::greaterThan($id, 0);
+    }
+
+    public function getId(): int
     {
         return $this->id;
     }

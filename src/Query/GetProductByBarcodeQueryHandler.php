@@ -3,6 +3,7 @@
 
 namespace App\Query;
 
+use App\Exception\ProductNotFoundException;
 use App\Repository\Dolibarr\ProductRepository;
 use App\ViewModel\Product;
 use Dolibarr\Client\Exception\ApiException;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * @package App\Query
  */
-final class GetProductByBarcodeQueryHandler
+final class GetProductByBarcodeQueryHandler implements QueryHandlerInterface
 {
     /**
      * @var ProductRepository
@@ -32,6 +33,7 @@ final class GetProductByBarcodeQueryHandler
      *
      * @return Product
      *
+     * @throws ProductNotFoundException
      * @throws ApiException
      */
     public function __invoke(GetProductByBarcodeQuery $query)
@@ -43,13 +45,26 @@ final class GetProductByBarcodeQueryHandler
 
             $apiProduct = new Product();
             $apiProduct->setLabel($currentProduct->getLabel());
-            $apiProduct->setCodebar($currentProduct->getBarcode());
+            $apiProduct->setBarcode($currentProduct->getBarcode());
             $apiProduct->setId(intval($currentProduct->getId(), 10));
             $apiProduct->setSerialNumberable($currentProduct->isBatchUsage());
 
             return $apiProduct;
         } catch (ResourceNotFoundException $e) {
-            throw new NotFoundHttpException();
+            throw new ProductNotFoundException();
         }
+    }
+
+    /**
+     * @param GetProductByBarcodeQuery $query
+     *
+     * @return Product
+     *
+     * @throws ProductNotFoundException
+     * @throws ApiException
+     */
+    public function handle($query)
+    {
+        return $this->__invoke($query);
     }
 }

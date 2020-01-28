@@ -60,7 +60,7 @@ final class InventoryCorrectionCommandHandlerTest extends TestCase
         $viewProduct = new Product();
 
         $viewProduct->setLabel('label for test');
-        $viewProduct->setCodebar('87644');
+        $viewProduct->setBarcode('87644');
         $viewProduct->setId(2);
         $viewProduct->setStock($stockQuantity);
         $viewProduct->setSerialNumberable($batchable);

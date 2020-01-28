@@ -5,6 +5,7 @@ namespace App\Util;
 
 use App\Query\GetProductByBarcodeQuery;
 use App\Query\GetProductByBarcodeQueryHandler;
+use App\Query\QueryHandlerInterface;
 use App\ViewModel\Product;
 use App\ViewModel\StockMovement;
 use App\ViewModel\Transaction;
@@ -17,7 +18,7 @@ final class TransactionBuilder
 {
 
     /**
-     * @var GetProductByBarcodeQueryHandler
+     * @var QueryHandlerInterface
      */
     private $productQueryHandler;
 
@@ -31,13 +32,20 @@ final class TransactionBuilder
      */
     private $products;
 
-    public function __construct(GetProductByBarcodeQueryHandler $productQueryHandler, string $defaultTransactionLabel)
+    public function __construct(QueryHandlerInterface $productQueryHandler, string $defaultTransactionLabel)
     {
         $this->productQueryHandler = $productQueryHandler;
         $this->defaultTransactionLabel = $defaultTransactionLabel;
         $this->products = [];
     }
 
+    /**
+     * @param ParameterBag $request
+     *
+     * @return Transaction
+     *
+     * @throws \Exception
+     */
     public function fromRequest(ParameterBag $request): Transaction
     {
         $barcodes = $request->get('barcode', []);
@@ -45,11 +53,11 @@ final class TransactionBuilder
         $serials = $request->get('serial', []);
         $dlc = $request->get('dlc', []);
         $warehouses = $request->get('warehouses', []);
+        $label = $this->cleanLabel($request->get('label', ''));
 
         Assert::notEmpty($barcodes);
         Assert::allCount([$qty, $serials, $dlc, $warehouses], count($barcodes));
 
-        $label = $this->cleanLabel($request->get('label', ''));
 
         $transaction = new Transaction($label);
         $i = 0;
@@ -96,11 +104,9 @@ final class TransactionBuilder
             return $this->products[$barcode];
         }
 
-        try {
-            $this->products[$barcode] = $this->productQueryHandler->__invoke(new GetProductByBarcodeQuery($barcode));
-        } catch (ApiException $e) {
-            throw new NotFoundHttpException();
-        }
+        $this->products[$barcode] = $this->productQueryHandler->handle(new GetProductByBarcodeQuery($barcode));
+
+        return $this->products[$barcode];
     }
 
     private function productSupportBatch(Product $product):bool

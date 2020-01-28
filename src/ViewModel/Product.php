@@ -45,7 +45,7 @@ final class Product
     /**
      * @param string $codebar
      */
-    public function setCodebar(string $codebar): void
+    public function setBarcode(string $codebar): void
     {
         $this->codebar = $codebar;
     }

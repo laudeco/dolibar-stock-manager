@@ -77,7 +77,7 @@ final class InventoryCommandHandlerTest extends TestCase
         $viewProduct = new \App\ViewModel\Product();
 
         $viewProduct->setLabel('label for test');
-        $viewProduct->setCodebar('87644');
+        $viewProduct->setBarcode('87644');
         $viewProduct->setId(2);
         $viewProduct->setStock(1000);
         $viewProduct->setSerialNumberable($serialable);
