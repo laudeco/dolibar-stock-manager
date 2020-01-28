@@ -17,7 +17,7 @@ final class Transaction
     private $label;
 
     /**
-     * @var array|StockMovement
+     * @var array|StockMovement[]
      */
     private $movements;
 

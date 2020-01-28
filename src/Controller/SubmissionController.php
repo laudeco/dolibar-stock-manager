@@ -11,6 +11,7 @@ use App\Exception\ActionException;
 use App\Exception\InventoryCheckRequestedException;
 use App\Query\GetProductByBarcodeQuery;
 use App\Query\GetProductByBarcodeQueryHandler;
+use App\Util\TransactionBuilder;
 use App\ViewModel\StockMovement;
 use App\ViewModel\Transaction;
 use Dolibarr\Client\Exception\ApiException;
@@ -164,61 +165,7 @@ final class SubmissionController extends AbstractController
      */
     private function buildTransaction(Request $request, string $defaultLabel): Transaction
     {
-        $barcodes = $request->request->get('barcode', []);
-        $qty = $request->request->get('qty', []);
-        $serials = $request->request->get('serial', []);
-        $dlc = $request->request->get('dlc', []);
-        $warehouses = $request->request->get('warehouses', []);
-
-        $label = $request->request->get('label', '');
-
-        if (empty($label)) {
-            $label = $defaultLabel;
-        }
-
-        $transaction = new Transaction($label);
-        $products = [];
-        $batchProduct = [];
-        $labels = [];
-
-        $i = 0;
-        foreach ($barcodes as $currentBarcode) {
-            if (!isset($products[$currentBarcode])) {
-                try {
-                    $product = $this->productQueryHandler->__invoke(new GetProductByBarcodeQuery($currentBarcode));
-                    $products[$currentBarcode] = $product->getId();
-                    $labels[$currentBarcode] = $product->getLabel();
-
-                    if ($product->serialNumberable()) {
-                        $batchProduct[] = $currentBarcode;
-                    }
-                } catch (ApiException $e) {
-                    throw new NotFoundHttpException();
-                }
-            }
-
-            if (!in_array($currentBarcode, $batchProduct)) {
-                $transaction->add(StockMovement::move($warehouses[$i], $labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i]));
-                $i++;
-
-                continue;
-            }
-
-            //batch product
-            if (!isset($dlc[$i]) || !isset($serials[$i])) {
-                continue;
-            }
-
-            $dlcDate = null;
-            if (!empty($dlc[$i])) {
-                $dlcDate = new \DateTimeImmutable($dlc[$i]);
-            }
-
-            $transaction->add(StockMovement::batch($warehouses[$i], $labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i], $serials[$i], $dlcDate));
-            $i++;
-        }
-
-        return $transaction;
+        return (new TransactionBuilder($this->productQueryHandler, $defaultLabel))->fromRequest($request->request);
     }
 
     /**

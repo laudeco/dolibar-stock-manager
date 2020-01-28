@@ -2,6 +2,12 @@
 
 namespace App\ViewModel;
 
+use App\Domain\Product\Barcode;
+use App\Domain\Product\LimitDate;
+use App\Domain\Product\ProductId;
+use App\Domain\Product\Quantity;
+use App\Domain\Product\Serial;
+use App\Domain\Warehouse\WarehouseId;
 use Webmozart\Assert\Assert;
 
 /**
@@ -11,27 +17,27 @@ final class StockMovement
 {
 
     /**
-     * @var int
+     * @var Quantity
      */
     private $quantity;
 
     /**
-     * @var string
+     * @var Barcode
      */
     private $barcode;
 
     /**
-     * @var int
+     * @var ProductId
      */
     private $productId;
 
     /**
-     * @var string|null
+     * @var Serial|null
      */
     private $serial;
 
     /**
-     * @var \DateTimeImmutable|null
+     * @var LimitDate|null
      */
     private $dlc;
 
@@ -46,24 +52,22 @@ final class StockMovement
     private $issue;
 
     /**
-     * @var int
+     * @var WarehouseId
      */
     private $warehouse;
 
     /**
-     * @param int $warehouseId
-     * @param string $label
-     * @param int $quantity
-     * @param string $barcode
-     * @param int $productId
-     * @param string|null $serial
-     * @param \DateTimeImmutable|null $dlc
+     * @param WarehouseId    $warehouseId
+     * @param string         $label
+     * @param Quantity       $quantity
+     * @param Barcode        $barcode
+     * @param ProductId      $productId
+     * @param Serial|null    $serial
+     * @param LimitDate|null $dlc
      */
-    private function __construct(int $warehouseId, string $label, int $quantity, string $barcode, int $productId, string $serial = null, \DateTimeImmutable $dlc = null)
+    private function __construct(WarehouseId $warehouseId, string $label, Quantity $quantity, Barcode $barcode, ProductId $productId, Serial $serial = null, LimitDate $dlc = null)
     {
-        Assert::stringNotEmpty($barcode, 'Barcode must be present');
         Assert::stringNotEmpty($label, 'Label must be present');
-        Assert::notEq($quantity, 0, 'Quantity cannot be 0');
 
         $this->warehouse = $warehouseId;
         $this->productLabel = $label;
@@ -77,22 +81,20 @@ final class StockMovement
 
     public static function move(int $warehouseId, string $label, string $barcode, int $productId, int $quantity): StockMovement
     {
-        return new self($warehouseId, $label, $quantity, $barcode, $productId);
+        return new self(WarehouseId::create($warehouseId), $label, Quantity::create($quantity), Barcode::initialize($barcode), new ProductId($productId));
     }
 
     public static function batch(int $warehouseId, string $label, string $barcode, int $productId, int $quantity, string $serial, \DateTimeImmutable $dlc = null):StockMovement
     {
-        Assert::stringNotEmpty($serial);
-
-        if($quantity > 0){
+        if ($quantity > 0) {
             Assert::notNull($dlc, 'The end date must be present');
         }
 
-        if($quantity < 0){
-            $dlc = null;
+        if ($quantity < 0) {
+            return new self(WarehouseId::create($warehouseId), $label, Quantity::create($quantity), Barcode::initialize($barcode), new ProductId($productId), Serial::initialize($serial));
         }
 
-        return new self($warehouseId, $label, $quantity, $barcode, $productId, $serial, $dlc);
+        return new self(WarehouseId::create($warehouseId), $label, Quantity::create($quantity), Barcode::initialize($barcode), new ProductId($productId), Serial::initialize($serial), LimitDate::fromDate($dlc));
     }
 
     /**
@@ -100,7 +102,7 @@ final class StockMovement
      */
     public function getWarehouse(): int
     {
-        return $this->warehouse;
+        return $this->warehouse->getId();
     }
 
     /**
@@ -108,7 +110,7 @@ final class StockMovement
      */
     public function getQuantity(): int
     {
-        return $this->quantity;
+        return $this->quantity->getValue();
     }
 
     /**
@@ -116,7 +118,7 @@ final class StockMovement
      */
     public function getBarcode(): string
     {
-        return $this->barcode;
+        return $this->barcode->getValue();
     }
 
     /**
@@ -124,7 +126,7 @@ final class StockMovement
      */
     public function getProductId(): int
     {
-        return $this->productId;
+        return $this->productId->getId();
     }
 
     /**
@@ -132,7 +134,7 @@ final class StockMovement
      */
     public function getSerial(): ?string
     {
-        return $this->serial;
+        return $this->serial->getValue();
     }
 
     /**
@@ -140,7 +142,7 @@ final class StockMovement
      */
     public function getDlc(): ?\DateTimeInterface
     {
-        return $this->dlc;
+        return $this->dlc ? $this->dlc->getValue() : null;
     }
 
     /**
