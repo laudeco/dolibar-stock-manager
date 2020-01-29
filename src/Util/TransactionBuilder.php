@@ -4,14 +4,11 @@
 namespace App\Util;
 
 use App\Query\GetProductByBarcodeQuery;
-use App\Query\GetProductByBarcodeQueryHandler;
 use App\Query\QueryHandlerInterface;
 use App\ViewModel\Product;
 use App\ViewModel\StockMovement;
 use App\ViewModel\Transaction;
-use Dolibarr\Client\Exception\ApiException;
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
 final class TransactionBuilder

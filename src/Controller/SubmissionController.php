@@ -9,6 +9,7 @@ use App\Command\InventoryCorrectionCommand;
 use App\Command\InventoryCorrectionCommandHandler;
 use App\Exception\ActionException;
 use App\Exception\InventoryCheckRequestedException;
+use App\Exception\ProductNotFoundException;
 use App\Query\GetProductByBarcodeQuery;
 use App\Query\GetProductByBarcodeQueryHandler;
 use App\Util\TransactionBuilder;
@@ -69,11 +70,10 @@ final class SubmissionController extends AbstractController
      */
     public function index(Request $request)
     {
-        $transaction = $this->buildTransaction($request, $this->getParameter('app_mouvement_label'));
-
         try {
-            $productRequiresInventoryCheck = $this->handleTransaction($transaction);
+            $transaction = $this->buildTransaction($request, $this->getParameter('app_mouvement_label'));
 
+            $productRequiresInventoryCheck = $this->handleTransaction($transaction);
             if (empty($productRequiresInventoryCheck)) {
                 return $this->success();
             }
@@ -81,7 +81,13 @@ final class SubmissionController extends AbstractController
             return $this->forward(InventoryController::class.'::indexAction', [], ['products' => $productRequiresInventoryCheck]);
         } catch (ActionException $e) {
             return $this->render('submission/index.html.twig', ['movements' => $e->getFeedbacks()]);
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('error', 'Erreur avec la soumission');
+        } catch (ProductNotFoundException $e) {
+            $this->addFlash('error', 'Un des produit n\'a pas été trouvé');
         }
+
+        return $this->render('index/index.html.twig');
     }
 
     /**

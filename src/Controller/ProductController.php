@@ -25,21 +25,10 @@ final class ProductController extends AbstractController
      */
     private $getProductByBarcodeQueryHandler;
 
-    /**
-     * @var Security
-     */
-    private $security;
-
-    /**
-     * @param GetProductByBarcodeQueryHandler $getProductByBarcodeQueryHandler
-     * @param Security                        $security
-     */
-    public function __construct(GetProductByBarcodeQueryHandler $getProductByBarcodeQueryHandler, Security $security)
+    public function __construct(GetProductByBarcodeQueryHandler $getProductByBarcodeQueryHandler)
     {
         $this->getProductByBarcodeQueryHandler = $getProductByBarcodeQueryHandler;
-        $this->security = $security;
     }
-
 
     /**
      * @Route("/{barcode}", name="get_by_barcode", methods={"GET"})
@@ -48,7 +37,7 @@ final class ProductController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function byBarcode(string $barcode)
+    public function byBarcode(string $barcode): JsonResponse
     {
         try {
             $product = $this->getProductByBarcodeQueryHandler->__invoke(new GetProductByBarcodeQuery($barcode));
