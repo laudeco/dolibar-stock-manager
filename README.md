@@ -5,7 +5,7 @@
 Inventory manager for Dolibarr.
 
 ## Objectives
-the projects has two main objectives:
+The projects has two main objectives:
 * Make a tool to easily add or remove products from a stock on Dolibarr.
 * Randomly this tool has to ask the remaining quantity for one product.
 
@@ -16,9 +16,8 @@ If you do not have any account on the Dolibarr instance you cannot have access t
 The project include one native barcode scanner. It's possible to scan the barcode from a mobile device. Currently only the code 128 barcode.
 
 ## Known limitations
-The stock manager doesn't support multiple warehouses. Currently, it's only in the config file that we hardcode the stock id.
+There is not translation, the all application is in **French**.
 
-There is not translation.
 ## Installation
 
 ### Configuration
@@ -33,7 +32,6 @@ parameters:
     inventory_max: 1 #The max value for the random number before a new inventory check
     app_inventory_label: 'Correction du stock'  #Label for an inventory check movement
     app_mouvement_label: 'Mouvement'  #Default label for a movement
-    app_stock_id: 1  #Warehouse ID
     app_barcode_type: 'code_128_reader' #The type of the barcode to choose between one of the supported type
 
     db_basepath: '../../data/nosql'  #The path for the storage data.
