@@ -8,7 +8,6 @@ use App\Repository\Dolibarr\ProductRepository;
 use App\ViewModel\Product;
 use Dolibarr\Client\Exception\ApiException;
 use Dolibarr\Client\Exception\ResourceNotFoundException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @package App\Query

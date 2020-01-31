@@ -19,7 +19,7 @@
                     <tbody id="selected_products">
 
                     {% for product in products %}
-                        <tr id="{{product.id}}" class="{% if product.isFound() %}table-warning{% endif %}">
+                        <tr id="{{product.id}}" class="{% if not product.isFound() %}table-warning{% endif %}">
                             <td class="align-middle">
                                 {{product.label}}
                                 <br>

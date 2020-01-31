@@ -55,25 +55,19 @@ final class TransactionBuilder
         Assert::notEmpty($barcodes);
         Assert::allCount([$qty, $serials, $dlc, $warehouses], count($barcodes), 'All count are not equals.');
 
-        $transaction = new Transaction($label);
+        $transaction = Transaction::create($label);
+
         $i = 0;
         foreach ($barcodes as $currentBarcode) {
             $product = $this->searchProduct($currentBarcode);
+            $warehouseId = (int)$warehouses[$i];
+            $quantity = (int)$qty[$i];
+            $serial = $serials[$i];
+            $dlcDate = !empty($dlc[$i]) ? new \DateTimeImmutable($dlc[$i]) : null;
 
-            if (!$this->productSupportBatch($product)) {
-                $transaction->add(StockMovement::move((int)$warehouses[$i], $product->getLabel(), $currentBarcode, $product->getId(), (int)$qty[$i]));
-                $i++;
+            $movement = $this->createMovement($product, $warehouseId, $currentBarcode, $quantity, $serial, $dlcDate);
 
-                continue;
-            }
-
-            //batch product
-            $dlcDate = null;
-            if (!empty($dlc[$i])) {
-                $dlcDate = new \DateTimeImmutable($dlc[$i]);
-            }
-
-            $transaction->add(StockMovement::batch((int)$warehouses[$i], $product->getLabel(), $currentBarcode, $product->getId(), (int)$qty[$i], $serials[$i], $dlcDate));
+            $transaction = $transaction->addMovement($movement);
             $i++;
         }
 
@@ -82,16 +76,11 @@ final class TransactionBuilder
 
     private function cleanLabel(string $label):string
     {
-        if (!$this->isEmpty($label)) {
+        if (!empty($label)) {
             return $label;
         }
 
         return $this->defaultTransactionLabel;
-    }
-
-    private function isEmpty(string $label): bool
-    {
-        return empty($label);
     }
 
     private function searchProduct(string $barcode):Product
@@ -108,5 +97,14 @@ final class TransactionBuilder
     private function productSupportBatch(Product $product):bool
     {
         return $product->serialNumberable();
+    }
+
+    private function createMovement(Product $product, int $warehouseId, $currentBarcode, int $qty, string $serialNumber, \DateTimeImmutable $dlc = null): StockMovement
+    {
+        if (!$this->productSupportBatch($product)) {
+            return StockMovement::move($warehouseId, $product->getLabel(), $currentBarcode, $product->getId(), $qty);
+        }
+
+        return StockMovement::batch($warehouseId, $product->getLabel(), $currentBarcode, $product->getId(), $qty, $serialNumber, $dlc);
     }
 }

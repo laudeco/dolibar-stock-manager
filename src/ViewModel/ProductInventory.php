@@ -35,7 +35,7 @@ final class ProductInventory
         $this->id = $id;
         $this->barcode = $barcode;
         $this->label = $label;
-        $this->find = null === $label && null === $barcode;
+        $this->find = !(null === $label && null === $barcode);
         $this->warehouse = $warehouse;
     }
 
@@ -71,17 +71,17 @@ final class ProductInventory
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getBarcode(): string
+    public function getBarcode(): ?string
     {
         return $this->barcode;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }

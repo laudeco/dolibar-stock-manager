@@ -2,15 +2,12 @@
 
 namespace App;
 
-use Dolibarr\Client\Security\Authentication\Authentication;
-use Dolibarr\Client\Security\Authentication\NoAuthentication;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
-use Symfony\Component\Security\Core\Security;
 
 class Kernel extends BaseKernel
 {

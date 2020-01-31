@@ -242,7 +242,7 @@ final class TransactionBuilderTest extends TestCase
         $transaction = $this->create()->fromRequest($request);
 
         $this->assertEquals('My label', $transaction->getLabel());
-        $this->assertCount(3, $transaction->getMovements());
+        $this->assertCount(3, $transaction);
     }
 
     private function product(string $barcode, bool $batchSupport): Product

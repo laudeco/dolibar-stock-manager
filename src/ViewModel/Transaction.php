@@ -3,7 +3,9 @@
 
 namespace App\ViewModel;
 
-final class Transaction
+use Traversable;
+
+final class Transaction implements \IteratorAggregate, \Countable
 {
 
     /**
@@ -21,26 +23,21 @@ final class Transaction
      */
     private $movements;
 
-    /**
-     * @param string $label
-     */
-    public function __construct(string $label)
+    private function __construct(string $label, \DateTimeImmutable $dueDate, array $movements = [])
     {
         $this->label = $label;
-        $this->movements = [];
-
-        try {
-            $this->dueDate = new \DateTimeImmutable();
-        } catch (\Exception $e) {
-        }
+        $this->movements = $movements;
+        $this->dueDate = $dueDate;
     }
 
-    /**
-     * @param StockMovement $movement
-     */
-    public function add(StockMovement $movement)
+    public static function create(string $label):self
     {
-        $this->movements[] = $movement;
+        return new self($label, new \DateTimeImmutable());
+    }
+
+    public function addMovement(StockMovement $movement):Transaction
+    {
+        return new $this($this->label, $this->dueDate, array_merge($this->movements, [$movement]));
     }
 
     /**
@@ -65,5 +62,18 @@ final class Transaction
     public function getMovements()
     {
         return $this->movements;
+    }
+
+    /**
+     * @return Traversable|StockMovement[]
+     */
+    public function getIterator(): Traversable
+    {
+        return new \ArrayIterator($this->movements);
+    }
+
+    public function count():int
+    {
+        return count($this->movements);
     }
 }

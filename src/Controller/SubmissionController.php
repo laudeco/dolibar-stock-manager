@@ -20,7 +20,6 @@ use Dolibarr\Client\Exception\ApiException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -117,7 +116,7 @@ final class SubmissionController extends AbstractController
     {
         $transaction = $this->buildTransaction($request, $this->getParameter('app_inventory_label'));
 
-        foreach ($transaction->getMovements() as $movement) {
+        foreach ($transaction as $movement) {
             try {
                 $command = new InventoryCorrectionCommand($transaction->getLabel(), $transaction->getDueDate(), $movement->getWarehouse(), $movement->getProductId(), $movement->getQuantity());
                 $this->inventoryCorrectionHandler->__invoke($command);
@@ -126,7 +125,7 @@ final class SubmissionController extends AbstractController
             } catch (ApiException $e) {
                 $this->addFlash('error', sprintf('Inventory for : %s - NOK', $movement->getProductLabel()));
             }
-        }
+        };
 
         return $this->success();
     }
@@ -145,7 +144,7 @@ final class SubmissionController extends AbstractController
         $movementFeedback = [];
         $issue = false;
 
-        foreach ($transaction->getMovements() as $movement) {
+        foreach ($transaction as $movement) {
             try {
                 $command = new InventoryCommand($transaction->getLabel(), $transaction->getDueDate(), $movement->getWarehouse(), $movement->getProductId(), $movement->getQuantity());
 
