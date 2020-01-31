@@ -78,7 +78,7 @@ class ProductRepository extends DolibarrRepository
         $viewProduct->setLabel($product->getLabel());
         $viewProduct->setBarcode($product->getBarcode());
         $viewProduct->setId($product->getId());
-        $viewProduct->setStock($product->getRealStock());
+        $viewProduct->setStock($product->getRealStock()?:0);
         $viewProduct->setSerialNumberable($product->isBatchUsage());
 
         return $viewProduct;

@@ -16,7 +16,7 @@ final class WarehouseRepository extends DolibarrRepository implements WarehouseR
 {
 
     /**
-     * @var WarehousesService
+     * @var WarehousesService|null
      */
     private $warehouseService;
 
@@ -42,7 +42,7 @@ final class WarehouseRepository extends DolibarrRepository implements WarehouseR
     {
         try {
             $domainWarehouses = WarehouseCollection::instanciate();
-            $warehouses = $this->warehouseService->findAll($limit, $page - 1);
+            $warehouses = $this->service()->findAll($limit, $page - 1);
 
             foreach ($warehouses as $currentWarehouse) {
                 $domainWarehouses = $domainWarehouses->add(new Warehouse(WarehouseId::create($currentWarehouse->getId()), WarehouseName::name($currentWarehouse->getLabel())));

@@ -30,6 +30,6 @@ final class Serial
 
     private function validate()
     {
-        Assert::stringNotEmpty($this->value);
+        Assert::stringNotEmpty($this->value, 'The lot numbercannot be empty.');
     }
 }

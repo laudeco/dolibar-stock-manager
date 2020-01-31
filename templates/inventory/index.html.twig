@@ -25,6 +25,11 @@
                                 <br>
                                 <em class="text-muted text-i">{{product.barcode}}</em>
                                 <input type="hidden" name="barcode[]" value="{{product.barcode}}" />
+
+                                <input type="hidden" name="warehouses[]" value="{{ product.getWarehouse() }}" />
+
+                                <input type="hidden" name="dlc[]" value="" />
+                                <input type="hidden" name="serial[]" value="" />
                             </td>
                             <td class="align-middle">
                                 <input type="number" name="qty[]"/>

@@ -31,6 +31,6 @@ final class Barcode
 
     private function validate()
     {
-        Assert::stringNotEmpty($this->value);
+        Assert::stringNotEmpty($this->value, 'The barcode cannot be empty');
     }
 }

@@ -26,7 +26,7 @@
                 </span>
                 <br>
                 <em class="text-muted text-i">{{product.barcode}}</em>
-                <input type="hidden" name="barcode[]" value="{{product.barcode}}" />
+                <input type="hidden" name="barcode[]"  value="{{product.barcode}}" />
             </td>
             <td class="align-middle">
                 {{ qty }}
@@ -35,7 +35,12 @@
 
             <!-- Warehouse -->
             <td class="align-middle">
-                <select name="warehouses[]">
+                <select name="warehouses[]" class="form-control">
+                    {% endverbatim %}
+                        {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}">{{ warehouse.label }}</option>
+                        {% endfor %}
+                    {% verbatim %}
                 </select>
             </td>
 

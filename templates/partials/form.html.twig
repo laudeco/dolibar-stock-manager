@@ -47,6 +47,7 @@
                 <tr>
                     <th>Produit</th>
                     <th>Quantité</th>
+                    <th>Stock</th>
                     <th>Numéro de serie</th>
                     <th>DLC</th>
                     <th>Actions</th>
@@ -73,6 +74,15 @@
                             {% if movement.failed() %}
                                 <input type="hidden" name="qty[]" value="{{ movement.getQuantity() }}" />
                             {% endif %}
+                        </td>
+
+                        <!-- Warehouse -->
+                        <td class="align-middle">
+                            <select name="warehouses[]" class="form-control">
+                                {% for warehouse in warehouses %}
+                                    <option value="{{ warehouse.id }}" {% if movement.getWarehouse() == warehouse.id %}selected{% endif %}>{{ warehouse.label }}</option>
+                                {% endfor %}
+                            </select>
                         </td>
 
                         <!-- Serial -->

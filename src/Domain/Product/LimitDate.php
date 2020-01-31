@@ -30,9 +30,6 @@ final class LimitDate
         return $this->value;
     }
 
-    /**
-     * @param DateTimeImmutable $value
-     */
     private function validate(DateTimeImmutable $value)
     {
         Assert::true($value > new DateTimeImmutable(''), 'DLC must be greater than now.');

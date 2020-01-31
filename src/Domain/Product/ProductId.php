@@ -21,7 +21,7 @@ final class ProductId
 
     private function validate(int $id)
     {
-        Assert::greaterThan($id, 0);
+        Assert::greaterThan($id, 0, 'The product ID must be greater than 0.');
     }
 
     public function getId(): int

@@ -31,6 +31,6 @@ final class WarehouseId
 
     private function validate()
     {
-        Assert::greaterThan($this->id, 0, 'The ID must be greater than 0.');
+        Assert::greaterThan($this->id, 0, 'The warehouse ID must be greater than 0.');
     }
 }

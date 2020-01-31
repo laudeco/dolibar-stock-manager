@@ -53,7 +53,7 @@ final class TransactionBuilder
         $label = $this->cleanLabel($request->get('label', ''));
 
         Assert::notEmpty($barcodes);
-        Assert::allCount([$qty, $serials, $dlc, $warehouses], count($barcodes));
+        Assert::allCount([$qty, $serials, $dlc, $warehouses], count($barcodes), 'All count are not equals.');
 
         $transaction = new Transaction($label);
         $i = 0;
@@ -61,7 +61,7 @@ final class TransactionBuilder
             $product = $this->searchProduct($currentBarcode);
 
             if (!$this->productSupportBatch($product)) {
-                $transaction->add(StockMovement::move($warehouses[$i], $product->getLabel(), $currentBarcode, $product->getId(), $qty[$i]));
+                $transaction->add(StockMovement::move((int)$warehouses[$i], $product->getLabel(), $currentBarcode, $product->getId(), (int)$qty[$i]));
                 $i++;
 
                 continue;
@@ -73,7 +73,7 @@ final class TransactionBuilder
                 $dlcDate = new \DateTimeImmutable($dlc[$i]);
             }
 
-            $transaction->add(StockMovement::batch($warehouses[$i], $product->getLabel(), $currentBarcode, $product->getId(), $qty[$i], $serials[$i], $dlcDate));
+            $transaction->add(StockMovement::batch((int)$warehouses[$i], $product->getLabel(), $currentBarcode, $product->getId(), (int)$qty[$i], $serials[$i], $dlcDate));
             $i++;
         }
 

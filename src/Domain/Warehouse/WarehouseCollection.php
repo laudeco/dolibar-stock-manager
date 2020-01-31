@@ -24,7 +24,7 @@ final class WarehouseCollection implements IteratorAggregate
 
     public function add(Warehouse $warehouse): self
     {
-        $collection = clone $this->collection;
+        $collection = $this->collection;
         $collection[] = $warehouse;
 
         return new $this($collection);

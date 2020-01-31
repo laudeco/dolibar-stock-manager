@@ -30,6 +30,6 @@ final class Quantity
 
     private function validate()
     {
-        Assert::notEq($this->value, 0);
+        Assert::notEq($this->value, 0, 'The quantity cannot be 0.');
     }
 }
