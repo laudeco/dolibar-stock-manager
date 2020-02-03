@@ -11,6 +11,7 @@ use App\Repository\Dolibarr\StockMovementRepository;
 use App\Repository\ProductRepository;
 use App\ViewModel\Product;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
+use Dolibarr\Client\Domain\StockMovement\StockMovementId;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -114,7 +115,8 @@ final class InventoryCorrectionCommandHandlerTest extends TestCase
         $this->stockMovementRepository
             ->expects($this->once())
             ->method('save')
-            ->with($dolibarrMovement);
+            ->with($dolibarrMovement)
+            ->willReturn(new StockMovementId(1));
 
         $this->productRepository
             ->expects($this->once())
