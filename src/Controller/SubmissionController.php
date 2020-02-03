@@ -7,17 +7,19 @@ use App\Command\InventoryCommand;
 use App\Command\InventoryCommandHandler;
 use App\Command\InventoryCorrectionCommand;
 use App\Command\InventoryCorrectionCommandHandler;
+use App\Domain\Inventory\InventoryRequest;
 use App\Exception\ActionException;
 use App\Exception\InventoryCheckRequestedException;
-use App\Query\GetProductByBarcodeQuery;
+use App\Exception\ProductNotFoundException;
 use App\Query\GetProductByBarcodeQueryHandler;
-use App\ViewModel\StockMovement;
+use App\Query\GetWarehousesQuery;
+use App\Query\GetWarehousesQueryHandler;
+use App\Util\TransactionBuilder;
 use App\ViewModel\Transaction;
 use Dolibarr\Client\Exception\ApiException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -43,18 +45,27 @@ final class SubmissionController extends AbstractController
     private $productQueryHandler;
 
     /**
-     * @param InventoryCommandHandler           $handler
-     * @param InventoryCorrectionCommandHandler $inventoryCorrectionHandler
-     * @param GetProductByBarcodeQueryHandler   $productQueryHandler
+     * @var GetWarehousesQueryHandler
      */
+    private $warehouseQueryHandler;
+
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
     public function __construct(
         InventoryCommandHandler $handler,
         InventoryCorrectionCommandHandler $inventoryCorrectionHandler,
-        GetProductByBarcodeQueryHandler $productQueryHandler
+        GetProductByBarcodeQueryHandler $productQueryHandler,
+        GetWarehousesQueryHandler $warehouseQueryHandler,
+        SessionInterface $session
     ) {
         $this->handler = $handler;
         $this->inventoryCorrectionHandler = $inventoryCorrectionHandler;
         $this->productQueryHandler = $productQueryHandler;
+        $this->warehouseQueryHandler = $warehouseQueryHandler;
+        $this->session = $session;
     }
 
     /**
@@ -68,19 +79,28 @@ final class SubmissionController extends AbstractController
      */
     public function index(Request $request)
     {
-        $transaction = $this->buildTransaction($request, $this->getParameter('app_mouvement_label'));
+        $warehouses = $this->warehouseQueryHandler->__invoke(new GetWarehousesQuery());
 
         try {
-            $productRequiresInventoryCheck = $this->handleTransaction($transaction);
+            $transaction = $this->buildTransaction($request, $this->getParameter('app_mouvement_label'));
 
+            $productRequiresInventoryCheck = $this->handleTransaction($transaction);
             if (empty($productRequiresInventoryCheck)) {
                 return $this->success();
             }
 
-            return $this->forward(InventoryController::class.'::indexAction', [], ['products' => $productRequiresInventoryCheck]);
+            $this->session->set('inventory_request', $productRequiresInventoryCheck);
+
+            return $this->forward(InventoryController::class.'::indexAction');
         } catch (ActionException $e) {
-            return $this->render('submission/index.html.twig', ['movements' => $e->getFeedbacks()]);
+            return $this->render('submission/index.html.twig', ['movements' => $e->getFeedbacks(), "warehouses" => $warehouses]);
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('error', sprintf('Erreur avec la soumission (rien n\'est sauvegardé). (%s)', $e->getMessage()));
+        } catch (ProductNotFoundException $e) {
+            $this->addFlash('error', 'Un des produit n\'a pas été trouvé (rien n\'est sauvegardé).');
         }
+
+        return $this->render('index/index.html.twig', ['warehouses' => $warehouses]);
     }
 
     /**
@@ -96,16 +116,16 @@ final class SubmissionController extends AbstractController
     {
         $transaction = $this->buildTransaction($request, $this->getParameter('app_inventory_label'));
 
-        foreach ($transaction->getMovements() as $movement) {
+        foreach ($transaction as $movement) {
             try {
-                $command = new InventoryCorrectionCommand($transaction->getLabel(), $transaction->getDueDate(), $this->getParameter('app_stock_id'), $movement->getProductId(), $movement->getQuantity());
+                $command = new InventoryCorrectionCommand($transaction->getLabel(), $transaction->getDueDate(), $movement->getWarehouse(), $movement->getProductId(), $movement->getQuantity());
                 $this->inventoryCorrectionHandler->__invoke($command);
 
                 $this->addFlash('success', sprintf('Inventory for : %s - OK', $movement->getProductLabel()));
             } catch (ApiException $e) {
-                throw new HttpException(500);
+                $this->addFlash('error', sprintf('Inventory for : %s - NOK', $movement->getProductLabel()));
             }
-        }
+        };
 
         return $this->success();
     }
@@ -113,7 +133,7 @@ final class SubmissionController extends AbstractController
     /**
      * @param Transaction $transaction
      *
-     * @return array
+     * @return array|InventoryRequest[]
      *
      * @throws ActionException
      * @throws \App\Exception\ProductNotFoundException
@@ -124,9 +144,9 @@ final class SubmissionController extends AbstractController
         $movementFeedback = [];
         $issue = false;
 
-        foreach ($transaction->getMovements() as $movement) {
+        foreach ($transaction as $movement) {
             try {
-                $command = new InventoryCommand($transaction->getLabel(), $transaction->getDueDate(), $this->getParameter('app_stock_id'), $movement->getProductId(), $movement->getQuantity());
+                $command = new InventoryCommand($transaction->getLabel(), $transaction->getDueDate(), $movement->getWarehouse(), $movement->getProductId(), $movement->getQuantity());
 
                 if ($movement->isBatch()) {
                     $command->batch($movement->getSerial(), $movement->getDlc());
@@ -135,10 +155,9 @@ final class SubmissionController extends AbstractController
                 $this->handler->__invoke($command);
 
                 $movementFeedback[] = $movement;
-
                 $this->addFlash('success', sprintf('%s : OK', $movement->getProductLabel()));
             } catch (InventoryCheckRequestedException $e) {
-                $productRequiresInventoryCheck[] = $e->getProductId();
+                $productRequiresInventoryCheck[] = new InventoryRequest($e->getProductId(), $movement->getWarehouse());
                 $movementFeedback[] = $movement;
             } catch (ApiException $e) {
                 $issue = true;
@@ -164,60 +183,7 @@ final class SubmissionController extends AbstractController
      */
     private function buildTransaction(Request $request, string $defaultLabel): Transaction
     {
-        $barcodes = $request->request->get('barcode', []);
-        $qty = $request->request->get('qty', []);
-        $serials = $request->request->get('serial', []);
-        $dlc = $request->request->get('dlc', []);
-
-        $label = $request->request->get('label', '');
-
-        if (empty($label)) {
-            $label = $defaultLabel;
-        }
-
-        $transaction = new Transaction($label);
-        $products = [];
-        $batchProduct = [];
-        $labels = [];
-
-        $i = 0;
-        foreach ($barcodes as $currentBarcode) {
-            if (!isset($products[$currentBarcode])) {
-                try {
-                    $product = $this->productQueryHandler->__invoke(new GetProductByBarcodeQuery($currentBarcode));
-                    $products[$currentBarcode] = $product->getId();
-                    $labels[$currentBarcode] = $product->getLabel();
-
-                    if ($product->serialNumberable()) {
-                        $batchProduct[] = $currentBarcode;
-                    }
-                } catch (ApiException $e) {
-                    throw new NotFoundHttpException();
-                }
-            }
-
-            if (!in_array($currentBarcode, $batchProduct)) {
-                $transaction->add(StockMovement::move($labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i]));
-                $i++;
-
-                continue;
-            }
-
-            //batch product
-            if (!isset($dlc[$i]) || !isset($serials[$i])) {
-                continue;
-            }
-
-            $dlcDate = null;
-            if (!empty($dlc[$i])) {
-                $dlcDate = new \DateTimeImmutable($dlc[$i]);
-            }
-
-            $transaction->add(StockMovement::batch($labels[$currentBarcode], $currentBarcode, $products[$currentBarcode], $qty[$i], $serials[$i], $dlcDate));
-            $i++;
-        }
-
-        return $transaction;
+        return (new TransactionBuilder($this->productQueryHandler, $defaultLabel))->fromRequest($request->request);
     }
 
     /**

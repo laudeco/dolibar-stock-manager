@@ -13,4 +13,5 @@ cache:
 
 script:
   - vendor/bin/php-cs-fixer fix --dry-run --diff
+  - vendor/bin/phpstan analyse -l 4 src
   - phpunit --configuration phpunit.xml.dist

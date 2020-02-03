@@ -15,6 +15,7 @@ use App\Repository\InventoryRepository;
 use App\Repository\ProductRepository;
 use App\ViewModel\Product;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
+use Dolibarr\Client\Domain\StockMovement\StockMovementId;
 use Dolibarr\Client\Exception\ResourceNotFoundException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -77,7 +78,7 @@ final class InventoryCommandHandlerTest extends TestCase
         $viewProduct = new \App\ViewModel\Product();
 
         $viewProduct->setLabel('label for test');
-        $viewProduct->setCodebar('87644');
+        $viewProduct->setBarcode('87644');
         $viewProduct->setId(2);
         $viewProduct->setStock(1000);
         $viewProduct->setSerialNumberable($serialable);
@@ -126,7 +127,8 @@ final class InventoryCommandHandlerTest extends TestCase
         $this->stockMovementRepository
             ->expects($this->once())
             ->method('save')
-            ->with($stockMovement);
+            ->with($stockMovement)
+            ->willReturn(new StockMovementId(1));
 
         $this->productRepository
             ->expects($this->once())
@@ -170,7 +172,8 @@ final class InventoryCommandHandlerTest extends TestCase
         $this->stockMovementRepository
             ->expects($this->once())
             ->method('save')
-            ->with($stockMovement);
+            ->with($stockMovement)
+            ->willReturn(new StockMovementId(1));
 
         $this->productRepository
             ->expects($this->once())
@@ -220,7 +223,8 @@ final class InventoryCommandHandlerTest extends TestCase
         $this->stockMovementRepository
             ->expects($this->once())
             ->method('save')
-            ->with($stockMovement);
+            ->with($stockMovement)
+            ->willReturn(new StockMovementId(1));
 
         $this->create(1, 3)->__invoke($command);
     }

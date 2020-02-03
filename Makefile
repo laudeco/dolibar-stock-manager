@@ -2,6 +2,10 @@ code-style:
 
 	docker-compose run --rm php /app/vendor/bin/php-cs-fixer -v fix --allow-risky yes
 
+analyse:
+
+	docker-compose run --rm php /app/vendor/bin/phpstan analyse -l $(l) src
+
 ## -- Composer
 
 composer-install: ## Allows to manually launch the composer install command in case you did some manual changes

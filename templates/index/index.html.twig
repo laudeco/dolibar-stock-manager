@@ -10,21 +10,7 @@
  {% endblock %}
 
 {% block body %}
-
-    <!-- Login -->
-    <div class="row mb-3">
-        <div class="col">
-            <label for="login">Identifiant</label>
-            <input type="text" class="form-control" name="login" id="login" data-check-url="{{ url('login') }}" data-logout="{{ url('logout') }}" value="{{ login }}">
-        </div>
-        <div class="col">
-            <label for="lastName">Mot de passe</label>
-            <input type="password" class="form-control"  name="password" id="password">
-        </div>
-    </div>
-
     {{ include('partials/form.html.twig', {'movements' : []}) }}
-
 {% endblock %}
 
 
@@ -40,11 +26,22 @@
                 </span>
                 <br>
                 <em class="text-muted text-i">{{product.barcode}}</em>
-                <input type="hidden" name="barcode[]" value="{{product.barcode}}" />
+                <input type="hidden" name="barcode[]"  value="{{product.barcode}}" />
             </td>
             <td class="align-middle">
                 {{ qty }}
                 <input type="hidden" name="qty[]" value="{{ qty }}" />
+            </td>
+
+            <!-- Warehouse -->
+            <td class="align-middle">
+                <select name="warehouses[]" class="form-control">
+                    {% endverbatim %}
+                        {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}">{{ warehouse.label }}</option>
+                        {% endfor %}
+                    {% verbatim %}
+                </select>
             </td>
 
             <!-- Serial -->
@@ -70,11 +67,6 @@
 
     <script type="application/javascript">
         (function($, Handlebars){
-            /**
-             * Handle the deferred promise.
-             */
-            var authenticateQ= $.Deferred();
-
             var StockMouvement = function(codeBarre, qty, operation, id){
                 this.codeBarre = codeBarre;
                 this.operation = operation;
@@ -149,16 +141,7 @@
             }
 
             function selectProduct(barcode, id){
-                if(authenticateQ.state() === 'pending'){
-                    authenticateQ.done(function(){
-                        getProduct(barcode, id);
-                    });
-
-                    return;
-                }
-
                 getProduct(barcode, id);
-
             }
 
             function getProduct(barcode, id){
@@ -187,45 +170,6 @@
                 });
             }
 
-            // Authentication
-            function authenticate(url, login, password){
-                return $.post(url, { username: login, password: password });
-            }
-
-            function loginSuccess(){
-                var $password = $('#password');
-                var input = $password[0];
-
-                $password.addClass('is-valid');
-                $password.removeClass('is-invalid');
-
-                input.setCustomValidity('');
-                input.reportValidity();
-
-                authenticateQ.resolve();
-            }
-
-            function loginFail(response){
-                var message = "Erreur de login";
-                if(typeof response.responseJSON !== "undefined" && typeof response.responseJSON.message !== "undefined"){
-                    message = response.responseJSON.message;
-                }
-
-                var $password = $('#password');
-                setErrorMessage($password, message);
-            }
-
-
-            function setErrorMessage($input, message){
-                var input = $input[0];
-
-                $input.addClass('is-invalid');
-                $input.removeClass('is-valid');
-
-                input.setCustomValidity(message);
-                input.reportValidity();
-            }
-
             function mouvement(direction){
                 var barcode = $('input[name="product"]').val();
                 var qty = $('input[name="qty"]').val();
@@ -252,21 +196,6 @@
                 var id = $(this).data('remove');
                 $('#'+id).remove();
             });
-
-            $('#password').on("focusout", function(){
-                var login = $("#login").val();
-                var password = $("#password").val();
-                var url = $("#login").data('check-url');
-
-                authenticate(url, login, password)
-                    .done(loginSuccess)
-                    .fail(loginFail);
-            });
-
-            var passwordField = $("#password");
-            if(passwordField.length === 0){
-                authenticateQ.resolve();
-            }
 
         })(jQuery, Handlebars);
     </script>

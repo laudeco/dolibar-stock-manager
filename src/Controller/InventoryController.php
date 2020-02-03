@@ -3,53 +3,54 @@
 
 namespace App\Controller;
 
-use App\Query\GetProductById;
-use App\Query\GetProductByIdHandler;
-use App\ViewModel\ProductInventory;
+use App\Domain\Inventory\InventoryRequest;
+use App\Query\GetInventoryCheckProductsQuery;
+use App\Query\GetInventoryCheckProductsQueryHandler;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @package App\Controller
  */
 final class InventoryController extends AbstractController
 {
-    /**
-     * @var GetProductByIdHandler
-     */
-    private $productHandler;
 
     /**
-     * @param GetProductByIdHandler $productHandler
+     * @var SessionInterface
      */
-    public function __construct(GetProductByIdHandler $productHandler)
+    private $session;
+
+    /**
+     * @var GetInventoryCheckProductsQueryHandler
+     */
+    private $getInventoryCheckProductsQueryHandler;
+
+    public function __construct(SessionInterface $session, GetInventoryCheckProductsQueryHandler $getInventoryCheckProductsQueryHandler)
     {
-        $this->productHandler = $productHandler;
+        $this->session = $session;
+        $this->getInventoryCheckProductsQueryHandler = $getInventoryCheckProductsQueryHandler;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function indexAction(Request $request)
+    public function indexAction(): Response
     {
-        $productIds = $request->get('products', []);
+        $inventoryRequests = $this->session->get('inventory_request', []);
+        $products = new ArrayCollection();
 
-        if (empty($productIds)) {
-            return $this->redirectToRoute('logout');
+        /** @var InventoryRequest $request */
+        foreach ($inventoryRequests as $request) {
+            $inventoryProduct = $this->getInventoryCheckProductsQueryHandler->handle(new GetInventoryCheckProductsQuery($request->getWarehouseId(), $request->getProductId()));
+
+            if (null === $inventoryProduct) {
+                continue;
+            }
+
+            $products[] = $inventoryProduct;
         }
 
-        $products = [];
-        foreach ($productIds as $id) {
-            try {
-                $prd = $this->productHandler->__invoke(new GetProductById($id));
-                $products[] = ProductInventory::create($prd->getId(), $prd->getCodebar(), $prd->getLabel());
-            } catch (NotFoundHttpException $e) {
-                $products[] = ProductInventory::notFound($id);
-            }
+        if (empty($inventoryRequests)) {
+            return $this->redirectToRoute('logout');
         }
 
         return $this->render('inventory/index.html.twig', [

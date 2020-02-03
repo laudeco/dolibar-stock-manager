@@ -2,6 +2,14 @@
 
 namespace App\ViewModel;
 
+use App\Domain\Product\Barcode;
+use App\Domain\Product\LimitDate;
+use App\Domain\Product\ProductId;
+use App\Domain\Product\Quantity;
+use App\Domain\Product\Serial;
+use App\Domain\Warehouse\WarehouseId;
+use Webmozart\Assert\Assert;
+
 /**
  * @package App\ViewModel
  */
@@ -9,27 +17,27 @@ final class StockMovement
 {
 
     /**
-     * @var int
+     * @var Quantity
      */
     private $quantity;
 
     /**
-     * @var string
+     * @var Barcode
      */
     private $barcode;
 
     /**
-     * @var int
+     * @var ProductId
      */
     private $productId;
 
     /**
-     * @var string|null
+     * @var Serial|null
      */
     private $serial;
 
     /**
-     * @var \DateTimeImmutable|null
+     * @var LimitDate|null
      */
     private $dlc;
 
@@ -44,19 +52,24 @@ final class StockMovement
     private $issue;
 
     /**
-     * @param string                  $label
-     * @param int                     $quantity
-     * @param string                  $barcode
-     * @param int                     $productId
-     * @param string|null             $serial
-     * @param \DateTimeImmutable|null $dlc
+     * @var WarehouseId
      */
-    private function __construct(string $label, int $quantity, string $barcode, int $productId, string $serial = null, \DateTimeImmutable $dlc = null)
-    {
-        if (empty($barcode)) {
-            throw new \InvalidArgumentException();
-        }
+    private $warehouse;
 
+    /**
+     * @param WarehouseId    $warehouseId
+     * @param string         $label
+     * @param Quantity       $quantity
+     * @param Barcode        $barcode
+     * @param ProductId      $productId
+     * @param Serial|null    $serial
+     * @param LimitDate|null $dlc
+     */
+    private function __construct(WarehouseId $warehouseId, string $label, Quantity $quantity, Barcode $barcode, ProductId $productId, Serial $serial = null, LimitDate $dlc = null)
+    {
+        Assert::stringNotEmpty($label, 'Label must be present');
+
+        $this->warehouse = $warehouseId;
         $this->productLabel = $label;
         $this->quantity = $quantity;
         $this->barcode = $barcode;
@@ -66,36 +79,30 @@ final class StockMovement
         $this->issue = false;
     }
 
-    /**
-     * @param string $label
-     * @param string $barcode
-     * @param int    $productId
-     * @param int    $quantity
-     *
-     * @return StockMovement
-     */
-    public static function move(string $label, string $barcode, int $productId, int $quantity)
+    public static function move(int $warehouseId, string $label, string $barcode, int $productId, int $quantity): StockMovement
     {
-        return new self($label, $quantity, $barcode, $productId);
+        return new self(WarehouseId::create($warehouseId), $label, Quantity::create($quantity), Barcode::initialize($barcode), new ProductId($productId));
+    }
+
+    public static function batch(int $warehouseId, string $label, string $barcode, int $productId, int $quantity, string $serial, \DateTimeImmutable $dlc = null):StockMovement
+    {
+        if ($quantity > 0) {
+            Assert::notNull($dlc, 'The end date must be present');
+        }
+
+        if ($quantity < 0) {
+            return new self(WarehouseId::create($warehouseId), $label, Quantity::create($quantity), Barcode::initialize($barcode), new ProductId($productId), Serial::initialize($serial));
+        }
+
+        return new self(WarehouseId::create($warehouseId), $label, Quantity::create($quantity), Barcode::initialize($barcode), new ProductId($productId), Serial::initialize($serial), LimitDate::fromDate($dlc));
     }
 
     /**
-     * @param string             $label
-     * @param string             $barcode
-     * @param int                $productId
-     * @param int                $quantity
-     * @param string             $serial
-     * @param \DateTimeImmutable $dlc
-     *
-     * @return StockMovement
+     * @return int
      */
-    public static function batch(string $label, string $barcode, int $productId, int $quantity, string $serial, \DateTimeImmutable $dlc = null)
+    public function getWarehouse(): int
     {
-        if (empty($serial)) {
-            throw new \InvalidArgumentException('Serial cannot be empty!');
-        }
-
-        return new self($label, $quantity, $barcode, $productId, $serial, $dlc);
+        return $this->warehouse->getId();
     }
 
     /**
@@ -103,7 +110,7 @@ final class StockMovement
      */
     public function getQuantity(): int
     {
-        return $this->quantity;
+        return $this->quantity->getValue();
     }
 
     /**
@@ -111,7 +118,7 @@ final class StockMovement
      */
     public function getBarcode(): string
     {
-        return $this->barcode;
+        return $this->barcode->getValue();
     }
 
     /**
@@ -119,7 +126,7 @@ final class StockMovement
      */
     public function getProductId(): int
     {
-        return $this->productId;
+        return $this->productId->getId();
     }
 
     /**
@@ -127,7 +134,7 @@ final class StockMovement
      */
     public function getSerial(): ?string
     {
-        return $this->serial;
+        return $this->serial->getValue();
     }
 
     /**
@@ -135,7 +142,7 @@ final class StockMovement
      */
     public function getDlc(): ?\DateTimeInterface
     {
-        return $this->dlc;
+        return $this->dlc ? $this->dlc->getValue() : null;
     }
 
     /**

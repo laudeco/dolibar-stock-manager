@@ -3,8 +3,6 @@
 
 namespace App\Infrastructure\Security;
 
-use Dolibarr\Client\Exception\ApiException;
-use Dolibarr\Client\Exception\ResourceNotFoundException;
 use Dolibarr\Client\Service\LoginService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
