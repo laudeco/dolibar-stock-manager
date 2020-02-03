@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/laudeco/dolibar-stock-manager.svg?branch=master)](https://travis-ci.org/laudeco/dolibar-stock-manager)
 [![Maintainability](https://api.codeclimate.com/v1/badges/76ddab6257e0222cb28d/maintainability)](https://codeclimate.com/github/laudeco/dolibar-stock-manager/maintainability)
+![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/github/laudeco/dolibar-stock-manager)
 
 # dolibar-stock-manager
 Inventory manager for Dolibarr.
