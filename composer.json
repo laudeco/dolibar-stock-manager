@@ -18,7 +18,8 @@
         "symfony/profiler-pack": "^1.0",
         "friendsofphp/php-cs-fixer": "^2.16",
         "symfony/phpunit-bridge": "^5.0",
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^8.5",
+        "phpstan/phpstan": "^0.12.8"
     },
     "authors": [
         {

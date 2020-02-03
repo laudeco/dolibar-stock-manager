@@ -6,7 +6,7 @@ namespace App\Repository\Dolibarr;
 use App\Factory\DolibarrClientFactory;
 use Dolibarr\Client\Client;
 use Dolibarr\Client\Security\Authentication\LoginAuthentication;
-use Dolibarr\Client\Service\ProductsService;
+use Dolibarr\Client\Service\AbstractService;
 use Symfony\Component\Security\Core\Security;
 
 abstract class DolibarrRepository
@@ -47,7 +47,7 @@ abstract class DolibarrRepository
     /**
      * Return the service needed for this repository.
      *
-     * @return ProductsService
+     * @return AbstractService
      */
     abstract protected function service();
 }
