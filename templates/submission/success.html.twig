@@ -3,7 +3,11 @@
 {% block body %}
     <div class="row justify-content-start">
         <div class="col-md-3">
-            <a href="{{ url('logout') }}" class="btn btn-success btn-lg js-automatic">Ok !</a>
+            {% if use_logout %}
+                <a href="{{ url('logout') }}" class="btn btn-success btn-lg js-automatic">Ok !</a>
+            {% else %}
+                <a href="{{ url('index') }}" class="btn btn-success btn-lg js-automatic">Ok !</a>
+            {% endif %}
         </div>
     </div>
 

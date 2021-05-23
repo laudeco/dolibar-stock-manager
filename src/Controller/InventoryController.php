@@ -27,20 +27,49 @@ final class InventoryController extends AbstractController
      */
     private $getInventoryCheckProductsQueryHandler;
 
-    public function __construct(SessionInterface $session, GetInventoryCheckProductsQueryHandler $getInventoryCheckProductsQueryHandler)
-    {
+    /**
+     * @var bool
+     */
+    private $inventoryRequest = true;
+
+    /**
+     * @var bool
+     */
+    private $logoutRequest = true;
+
+    public function __construct(
+        SessionInterface $session,
+        GetInventoryCheckProductsQueryHandler $getInventoryCheckProductsQueryHandler,
+        bool $inventoryRequest,
+        bool $logoutRequest
+    ) {
         $this->session = $session;
         $this->getInventoryCheckProductsQueryHandler = $getInventoryCheckProductsQueryHandler;
+        $this->inventoryRequest = $inventoryRequest;
+        $this->logoutRequest = $logoutRequest;
     }
 
     public function indexAction(): Response
     {
+        if (!$this->inventoryRequest) {
+            if ($this->logoutRequest) {
+                return $this->redirectToRoute('logout');
+            }
+
+            return $this->redirectToRoute('index');
+        }
+
         $inventoryRequests = $this->session->get('inventory_request', []);
         $products = new ArrayCollection();
 
         /** @var InventoryRequest $request */
         foreach ($inventoryRequests as $request) {
-            $inventoryProduct = $this->getInventoryCheckProductsQueryHandler->handle(new GetInventoryCheckProductsQuery($request->getWarehouseId(), $request->getProductId()));
+            $inventoryProduct = $this->getInventoryCheckProductsQueryHandler->handle(
+                new GetInventoryCheckProductsQuery(
+                    $request->getWarehouseId(),
+                    $request->getProductId()
+                )
+            );
 
             if (null === $inventoryProduct) {
                 continue;

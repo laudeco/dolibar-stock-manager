@@ -62,9 +62,11 @@ final class SubmissionController extends AbstractController
         SessionInterface $session
     ) {
         $this->handler = $handler;
+
         $this->inventoryCorrectionHandler = $inventoryCorrectionHandler;
         $this->productQueryHandler = $productQueryHandler;
         $this->warehouseQueryHandler = $warehouseQueryHandler;
+
         $this->session = $session;
     }
 

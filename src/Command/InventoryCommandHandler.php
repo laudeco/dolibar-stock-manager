@@ -3,15 +3,13 @@
 
 namespace App\Command;
 
-use App\Domain\Inventory\Inventory;
-use App\Domain\Inventory\Quantity;
+use App\Application\Inventory\Requester\InventoryRequesterInterface;
 use App\Domain\Product\Counter;
 use App\Domain\Product\Product;
 use App\Domain\Product\ProductId;
 use App\Exception\InventoryCheckRequestedException;
 use App\Exception\ProductNotFoundException;
 use App\Repository\Dolibarr\StockMovementRepository;
-use App\Repository\InventoryRepository;
 use App\Repository\ProductRepository;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -35,47 +33,26 @@ final class InventoryCommandHandler
     private $productRepository;
 
     /**
-     * @var InventoryRepository
-     */
-    private $inventoryRepository;
-
-    /**
-     * @var int
-     */
-    private $min;
-
-    /**
-     * @var int
-     */
-    private $max;
-
-    /**
      * @var DolibarrProductRepository
      */
     private $dolibarrProductRepository;
 
     /**
-     * @param StockMovementRepository   $stockService
-     * @param ProductRepository         $productRepository
-     * @param InventoryRepository       $inventoryRepository
-     * @param DolibarrProductRepository $dolibarrProductRepository
-     * @param int                       $min
-     * @param int                       $max
+     * @var InventoryRequesterInterface
      */
+    private $inventoryRequester;
+
     public function __construct(
         StockMovementRepository $stockService,
         ProductRepository $productRepository,
-        InventoryRepository $inventoryRepository,
         DolibarrProductRepository $dolibarrProductRepository,
-        int $min,
-        int $max
+        InventoryRequesterInterface $inventoryRequester
     ) {
         $this->stockMovementRepository = $stockService;
         $this->productRepository = $productRepository;
-        $this->inventoryRepository = $inventoryRepository;
         $this->dolibarrProductRepository = $dolibarrProductRepository;
-        $this->min = $min;
-        $this->max = $max;
+
+        $this->inventoryRequester = $inventoryRequester;
     }
 
 
@@ -86,7 +63,7 @@ final class InventoryCommandHandler
      * @throws InventoryCheckRequestedException
      * @throws ProductNotFoundException
      */
-    public function __invoke(InventoryCommand $command):void
+    public function __invoke(InventoryCommand $command): void
     {
         try {
             $product = $this->dolibarrProductRepository->getById($command->getProductId());
@@ -165,35 +142,10 @@ final class InventoryCommandHandler
      */
     private function inventoryCheck(DolibarrProduct $product, int $counter): void
     {
-        try {
-            $inventory = $this->inventoryRepository->getById($product->getId());
-        } catch (ResourceNotFoundException $e) {
-            $inventory = $this->createRandomInventory($product->getId());
-        }
-
-        if (!$inventory->isLimitReached($counter)) {
+        if (!$this->inventoryRequester->shouldTriggerInventory($product, $counter)) {
             return;
         }
 
-        $this->createRandomInventory($product->getId());
-
         throw new InventoryCheckRequestedException($product->getId());
-    }
-
-    /**
-     * @param int $productId
-     *
-     * @return Inventory
-     */
-    private function createRandomInventory(int $productId): Inventory
-    {
-        $inventory = Inventory::forProduct(
-            new \App\Domain\Inventory\Product($productId),
-            Quantity::random($this->min, $this->max)
-        );
-
-        $this->inventoryRepository->save($inventory);
-
-        return $inventory;
     }
 }

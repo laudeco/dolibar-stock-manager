@@ -2,3 +2,5 @@ twig:
     default_path: '%kernel.project_dir%/templates'
     globals:
         barcode_type: '%app_barcode_type%'
+        use_inventory: '%app_use_inventory%'
+        use_logout: '%app_logout%'

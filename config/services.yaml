@@ -11,9 +11,13 @@ parameters:
     # Inventory min and max - the number of updates before the next inventory will be between those 2 values.
     inventory_min: 1
     inventory_max: 1
+
     app_inventory_label: 'Correction du stock'
     app_mouvement_label: 'Mouvement'
     app_barcode_type: 'code_128_reader'
+
+    app_use_inventory: false
+    app_logout: false
 
     # Db
     db_basepath: '../../data/nosql'
@@ -36,6 +40,11 @@ services:
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+
+    App\Controller\InventoryController:
+        arguments:
+            $inventoryRequest: '%app_use_inventory%'
+            $logoutRequest: '%app_logout%'
 
     App\Query\:
         resource: '../src/Query/*'
@@ -61,11 +70,21 @@ services:
     App\Infrastructure\Security\AuthenticationConfigurator: ~
 
 
-    #-- Command handler
-    App\Command\InventoryCommandHandler:
+    #-- Inventory Requester
+    App\Application\Inventory\Requester\InventoryRequester:
         arguments:
             $min: '%inventory_min%'
             $max: '%inventory_max%'
+
+    App\Factory\InventoryRequesterFactory:
+        class: App\Factory\InventoryRequesterFactory
+        arguments:
+            $inventoryRequest: '%app_use_inventory%'
+            $default: '@App\Application\Inventory\Requester\InventoryRequester'
+
+    App\Application\Inventory\Requester\InventoryRequesterInterface:
+        class: App\Application\Inventory\Requester\InventoryRequesterInterface
+        factory: ['@App\Factory\InventoryRequesterFactory', 'create']
 
     #-- Repo
     App\Repository\Dolibarr\:
