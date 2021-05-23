@@ -1,17 +1,16 @@
 <?php
 namespace App\Tests\Command;
 
+use App\Application\Inventory\Requester\InventoryRequester;
+use App\Application\Inventory\Requester\InventoryRequesterInterface;
 use App\Command\InventoryCommand;
 use App\Command\InventoryCommandHandler;
-use App\Domain\Inventory\Inventory;
-use App\Domain\Inventory\Quantity;
 use App\Domain\Product\Counter;
 use App\Domain\Product\ProductId;
 use App\Exception\InventoryCheckRequestedException;
 use App\Exception\ProductNotFoundException;
 use App\Repository\Dolibarr\ProductRepository as DolibarrProductRepository;
 use App\Repository\Dolibarr\StockMovementRepository;
-use App\Repository\InventoryRepository;
 use App\Repository\ProductRepository;
 use App\ViewModel\Product;
 use Dolibarr\Client\Domain\StockMovement\StockMovement;
@@ -37,9 +36,9 @@ final class InventoryCommandHandlerTest extends TestCase
     private $productRepository;
 
     /**
-     * @var InventoryRepository|MockObject
+     * @var InventoryRequester|MockObject
      */
-    private $inventoryRepository;
+    private $inventoryRequester;
 
     /**
      * @var DolibarrProductRepository|MockObject
@@ -52,7 +51,7 @@ final class InventoryCommandHandlerTest extends TestCase
 
         $this->stockMovementRepository = $this->createMock(StockMovementRepository::class);
         $this->productRepository = $this->createMock(ProductRepository::class);
-        $this->inventoryRepository = $this->createMock(InventoryRepository::class);
+        $this->inventoryRequester = $this->createMock(InventoryRequesterInterface::class);
         $this->dolibarrProductRepository = $this->createMock(DolibarrProductRepository::class);
     }
 
@@ -61,10 +60,8 @@ final class InventoryCommandHandlerTest extends TestCase
         return new InventoryCommandHandler(
             $this->stockMovementRepository,
             $this->productRepository,
-            $this->inventoryRepository,
             $this->dolibarrProductRepository,
-            $min,
-            $max
+            $this->inventoryRequester
         );
     }
 
@@ -135,12 +132,6 @@ final class InventoryCommandHandlerTest extends TestCase
             ->method('getById')
             ->willThrowException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException());
 
-        $this->inventoryRepository
-            ->expects($this->once())
-            ->method('getById')
-            ->with(2)
-            ->willThrowException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException());
-
         $this->productRepository
             ->expects($this->once())
             ->method('save')
@@ -180,16 +171,14 @@ final class InventoryCommandHandlerTest extends TestCase
             ->method('getById')
             ->willReturn(new \App\Domain\Product\Product(new ProductId(2), new Counter(1)));
 
-        $this->inventoryRepository
-            ->expects($this->once())
-            ->method('getById')
-            ->with(2)
-            ->willReturn(Inventory::forProduct(new \App\Domain\Inventory\Product(2), Quantity::create(2)));
-
         $this->productRepository
             ->expects($this->once())
             ->method('save')
             ->with(new \App\Domain\Product\Product(new ProductId(2), new Counter(2)));
+
+        $this->inventoryRequester->expects($this->once())
+            ->method('shouldTriggerInventory')
+            ->willReturn(true);
 
         $this->expectException(InventoryCheckRequestedException::class);
         $this->create(2, 2)->__invoke($this->command());

@@ -3,10 +3,7 @@
 
 namespace App\Domain\Inventory;
 
-/**
- * @package App\Entity
- */
-final class Inventory
+class Inventory
 {
 
     /**

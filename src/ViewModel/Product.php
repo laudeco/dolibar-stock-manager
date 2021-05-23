@@ -6,7 +6,7 @@ namespace App\ViewModel;
 /**
  * @package App\ViewModel
  */
-final class Product
+class Product
 {
 
     /**

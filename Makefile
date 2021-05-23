@@ -60,6 +60,9 @@ logs: ## Shows the logs of a container. Use 's' variable to filter on a specific
 console: ## Executes the Symfony command
 	docker-compose exec php sh -lc '/app/bin/console $(c)'
 
+test:
+	docker-compose exec php sh -lc '/app/vendor/bin/phpunit --configuration /app/phpunit.xml.dist'
+
 ## -- browser
 
 open: ## Open the browser on the right port
