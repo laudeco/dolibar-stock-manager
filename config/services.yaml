@@ -16,8 +16,8 @@ parameters:
     app_mouvement_label: 'Mouvement'
     app_barcode_type: 'code_128_reader'
 
-    app_use_inventory: false
-    app_logout: false
+    app_use_inventory: true
+    app_logout: true
 
     # Db
     db_basepath: '../../data/nosql'
